@@ -42,6 +42,10 @@ public:
             meshes[i].Draw(shader);
     }
 
+	void SetModelMatrix(const glm::mat4& modelMatrix) {
+		this->modelMatrix = modelMatrix;
+	}
+
 	// update transformations in time 
 	void SetPose(float time, glm::mat4 *gBones) {
 		
@@ -83,6 +87,9 @@ public:
 private:
 
     /*  Functions   */
+
+	glm::mat4 modelMatrix;
+
 
 	inline glm::mat4 aiMatrix4x4ToGlm(aiMatrix4x4 from)
 	{
