@@ -3,9 +3,6 @@ Proyecto Final CGIHC 2024-2
 Alumno: Pacheco Salgado Mauricio
 Codigo implementado del profesor: Sergio Teodoro Vite
 */
-
-//Perros
-
 #include <iostream>
 #include <stdlib.h>
 
@@ -73,16 +70,16 @@ float	movAuto_x = 0.0f,
 //Animacion Basica 1
 bool animacionActiva = false;
 
-bool	/*animacionB1 = true,*/
-		animacionB2 = false,
-		animacionB3 = false,
-		animacionC1 = true,
-		animacionC2 = true,
-		animacionC3 = true,
-		recorrido1 = true,
-		recorrido2 = false,
-		recorrido3 = false,
-		recorrido4 = false;
+//bool	/*animacionB1 = true,*/
+//		animacionB2 = false,
+//		animacionB3 = false,
+//		animacionC1 = true,
+//		animacionC2 = true,
+//		animacionC3 = true,
+//		recorrido1 = true,
+//		recorrido2 = false,
+//		recorrido3 = false,
+//		recorrido4 = false;
 
 glm::vec3 position(0.0f, 0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -140,6 +137,10 @@ Model* door;
 Model* moon;
 Model* gridMesh;
 
+//Modelo Ave - Cuervo
+Model* cuervo;
+
+
 //Modelo Carro (Reemplazar por moto)
 Model* carroM;
 
@@ -153,8 +154,11 @@ Model* modelEclipseFrontalWheels;
 AnimatedModel* modelPacManDescanso;
 AnimatedModel* modelPacManCorriendo;
 
-// Modelos animados
-AnimatedModel* character01;
+//Modelo Hombre Paseando Perro
+AnimatedModel* modelMan;
+AnimatedModel* modelDog;
+
+
 
 //Definiciones de los modelos
 
@@ -216,7 +220,7 @@ bool Start() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Creación de la ventana con GLFW
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Animation", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Proyecto Final CGIHC 2024-2 - Pacheco Salgado Mauricio", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -260,6 +264,10 @@ bool Start() {
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
 
+	//Ave - Cuervo Animado Para Centro Comercial
+	cuervo = new Model("models/ModelsMall/aves/aves1.obj");
+
+
 	//Carro Para Centro Comercial
 	carroM = new Model("models/ModelsMall/carro/carro1.obj");
 
@@ -272,8 +280,10 @@ bool Start() {
 	modelPacManDescanso = new AnimatedModel("models/ModelsMall/Pacman/Pac-Man_Descanso.fbx");
 	modelPacManCorriendo = new AnimatedModel("models/ModelsMall/Pacman/Pac-Man_Corriendo.fbx");
 
+	//Model ManDog
+	modelMan = new AnimatedModel("models/ModelsMall/manWalkingFinal.fbx");
+	modelDog = new AnimatedModel("models/ModelsMall/DogGolden.fbx");
 
-	character01 = new AnimatedModel("models/IllumModels/KAYA.fbx");
 
 	// Cubemap
 	vector<std::string> faces
@@ -315,7 +325,7 @@ bool Start() {
 	light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
 	gLights.push_back(light04);
 
-	// SoundEngine->play2D("sound/EternalGarden.mp3", true);
+	//SoundEngine->play2D("sound/EternalGarden.mp3", true);
 
 	return true;
 }
@@ -438,8 +448,8 @@ bool Update() {
 	glUseProgram(0);
 
 
-	// Actividad 5.2
-	/*
+	// Animacion Cuervo 
+	
 	{
 		// Activamos el shader de Phong
 		proceduralShader->use();
@@ -456,85 +466,26 @@ bool Update() {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotación adicional para corregir la orientación
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotación adicional para corregir la orientación
+
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 		proceduralShader->setMat4("model", model);
 
 		proceduralShader->setFloat("time", proceduralTime);
-		proceduralShader->setFloat("radius", 5.0f);
+		proceduralShader->setFloat("radius", 60.0f);
 		proceduralShader->setFloat("height", 0.0f);
 
-		moon->Draw(*proceduralShader);
-		proceduralTime += 0.01;
+		cuervo->Draw(*proceduralShader);
+		proceduralTime += 0.005;
 
 	}
 
 	glUseProgram(0);
-	*/
 
-	// Actividad 5.3
-	/*
-	{
-		// Activamos el shader de Phong
-		wavesShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		wavesShader->setMat4("projection", projection);
-		wavesShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		wavesShader->setMat4("model", model);
-
-		wavesShader->setFloat("time", wavesTime);
-		wavesShader->setFloat("radius", 5.0f);
-		wavesShader->setFloat("height", 5.0f);
-
-		gridMesh->Draw(*wavesShader);
-		wavesTime += 0.01;
-
-	}
-
-	glUseProgram(0);
-	*/
-
-	// Objeto animado
-	/*
-	{
-		character01->UpdateAnimation(deltaTime);
-
-		// Activación del shader del personaje
-		dynamicShader->use();
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		dynamicShader->setMat4("projection", projection);
-		dynamicShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, position); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
-
-		dynamicShader->setMat4("model", model);
-
-		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, character01->gBones);
-
-		// Dibujamos el modelo
-		character01->Draw(*dynamicShader);
-	}
-	
-
-	glUseProgram(0);*/
 
 	//Animacion Carro
-	/*
+	
 	{
 		// Activamos el shader del plano
 		staticShader->use();
@@ -554,13 +505,13 @@ bool Update() {
 		model = glm::rotate(model, glm::radians(giraCarro), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader->setMat4("model", model);
 
-		//carroM->Draw(*staticShader);
+		carroM->Draw(*staticShader);
 	}
 	glUseProgram(0);
-	*/
+	
 
 	//Animacion Eclipse
-	/*
+	
 	{
 
 		// Activación del shader del personaje
@@ -581,7 +532,7 @@ bool Update() {
 		modelMatrixEclipseChasis = glm::scale(modelMatrixEclipse, glm::vec3(0.5, 0.5, 0.5));
 		staticShader->setMat4("model", modelMatrixEclipseChasis);
 		//Se dibuja
-		//modelEclipseChasis->Draw(*staticShader);
+		modelEclipseChasis->Draw(*staticShader);
 
 
 		glm::mat4 modelMatrixFrontalWheels = glm::mat4(modelMatrixEclipseChasis); // (891)(892)(893)(894)
@@ -592,7 +543,7 @@ bool Update() {
 		modelMatrixFrontalWheels = glm::translate(modelMatrixFrontalWheels, glm::vec3(0.0, -1.05813, -4.11483));
 		staticShader->setMat4("model", modelMatrixFrontalWheels);
 		//Se dibuja
-		//modelEclipseFrontalWheels->Draw(*staticShader);
+		modelEclipseFrontalWheels->Draw(*staticShader);
 
 
 		glm::mat4 modelMatrixRearWheels = glm::mat4(modelMatrixEclipseChasis);
@@ -601,10 +552,10 @@ bool Update() {
 		modelMatrixRearWheels = glm::translate(modelMatrixRearWheels, glm::vec3(0.0, -1.05813, 4.35157));
 		staticShader->setMat4("model", modelMatrixRearWheels);
 
-		//modelEclipseRearWheels->Draw(*staticShader);
+		modelEclipseRearWheels->Draw(*staticShader);
 	}
 
-	glUseProgram(0); */
+	glUseProgram(0);
 
 	// Pacman animado
 
@@ -629,7 +580,7 @@ bool Update() {
 			dynamicShader->setMat4("model", modelMatrixPacmanCorriendoBody);
 			dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelPacManCorriendo->gBones);
 			// Dibujamos el modelo
-			modelPacManCorriendo->Draw(*dynamicShader);
+			//modelPacManCorriendo->Draw(*dynamicShader);
 		}
 		else {
 			glm::mat4 modelMatrixPacmanDescansoBody = glm::mat4(modelMatrixPacmanDescanso);
@@ -639,11 +590,71 @@ bool Update() {
 			dynamicShader->setMat4("model", modelMatrixPacmanDescansoBody);
 			dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelPacManDescanso->gBones);
 			// Dibujamos el modelo
-			modelPacManDescanso->Draw(*dynamicShader);
+			//modelPacManDescanso->Draw(*dynamicShader);
 		}
 
 		glUseProgram(0);
+
+
+
 	}
+
+	//Hombre Paseando
+	
+	{
+		modelMan->UpdateAnimation(deltaTime);
+
+		// Activación del shader del personaje
+		dynamicShader->use();
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		dynamicShader->setMat4("projection", projection);
+		dynamicShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
+
+		dynamicShader->setMat4("model", model);
+
+		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelMan->gBones);
+
+		// Dibujamos el modelo
+		modelMan->Draw(*dynamicShader);
+	}
+
+	glUseProgram(0);
+
+
+	//Model Dog Paseando
+
+	{
+		modelDog->UpdateAnimation(deltaTime);
+
+		// Activación del shader del personaje
+		dynamicShader->use();
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		dynamicShader->setMat4("projection", projection);
+		dynamicShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
+		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.002f, 0.002f, 0.002f));	// it's a bit too big for our scene, so scale it down
+
+		dynamicShader->setMat4("model", model);
+
+		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelDog->gBones);
+
+		// Dibujamos el modelo
+		modelDog->Draw(*dynamicShader);
+	}
+
+	glUseProgram(0);
+	
 
 
 	// glfw: swap buffers 
@@ -652,7 +663,6 @@ bool Update() {
 
 	return true;
 }
-
 
 // Procesamos entradas del teclado
 void processInput(GLFWwindow* window)
@@ -684,60 +694,13 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
 		door_rotation -= 1.f;
 
-	// Character movement
-	//if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-	//	position = position + scaleV * forwardView;
-	//	camera3rd.Front = forwardView;
-	//	camera3rd.ProcessKeyboard(FORWARD, deltaTime);
-	//	camera3rd.Position = position;
-	//	camera3rd.Position.y += 1.7f;
-	//	camera3rd.Position -= trdpersonOffset * forwardView;
-
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-	//	position = position - scaleV * forwardView;
-	//	camera3rd.Front = forwardView;
-	//	camera3rd.ProcessKeyboard(BACKWARD, deltaTime);
-	//	camera3rd.Position = position;
-	//	camera3rd.Position.y += 1.7f;
-	//	camera3rd.Position -= trdpersonOffset * forwardView;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-	//	rotateCharacter += 0.5f;
-
-	//	glm::mat4 model = glm::mat4(1.0f);
-	//	model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0f, 1.0f, 0.0f));
-	//	glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-	//	forwardView = glm::vec3(viewVector);
-	//	forwardView = glm::normalize(forwardView);
-
-	//	camera3rd.Front = forwardView;
-	//	camera3rd.Position = position;
-	//	camera3rd.Position.y += 1.7f;
-	//	camera3rd.Position -= trdpersonOffset * forwardView;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-	//	rotateCharacter -= 0.5f;
-
-	//	glm::mat4 model = glm::mat4(1.0f);
-	//	model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0f, 1.0f, 0.0f));
-	//	glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-	//	forwardView = glm::vec3(viewVector);
-	//	forwardView = glm::normalize(forwardView);
-
-	//	camera3rd.Front = forwardView;
-	//	camera3rd.Position = position;
-	//	camera3rd.Position.y += 1.7f;
-	//	camera3rd.Position -= trdpersonOffset * forwardView;
-	//}
-
 	if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
 		activeCamera = 0;
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
 		activeCamera = 1;
 
 
-
+	//Animaciones Con implementacion de teclas
 
 	//AnimacionB1 Carro
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
@@ -842,18 +805,6 @@ void processInput(GLFWwindow* window)
 		modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, 0.02f, glm::vec3(0, 1, 0));
 		animationPacmanIndex = 1;
 
-		rotateCharacter += 0.02f;
-
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-		forwardView = glm::vec3(viewVector);
-		forwardView = glm::normalize(forwardView);
-
-		camera3rd.Front = forwardView;
-		camera3rd.Position = position;
-		camera3rd.Position.y += 1.7f;
-		camera3rd.Position -= trdpersonOffset * forwardView;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 
@@ -862,31 +813,12 @@ void processInput(GLFWwindow* window)
 		modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, -0.02f, glm::vec3(0, 1, 0));
 		animationPacmanIndex = 1;
 
-		rotateCharacter -= 0.02f;
-
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-		forwardView = glm::vec3(viewVector);
-		forwardView = glm::normalize(forwardView);
-
-		camera3rd.Front = forwardView;
-		camera3rd.Position = position;
-		camera3rd.Position.y += 1.7f;
-		camera3rd.Position -= trdpersonOffset * forwardView;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 
 		modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, 0.02));
 		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, 0.02));
 		animationPacmanIndex = 1;
-
-		position = position + scaleV * forwardView;
-		camera3rd.Front = forwardView;
-		camera3rd.ProcessKeyboard(FORWARD, deltaTime);
-		camera3rd.Position = position;
-		camera3rd.Position.y += 1.7f;
-		camera3rd.Position -= trdpersonOffset * forwardView;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 
@@ -894,15 +826,9 @@ void processInput(GLFWwindow* window)
 		modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, -0.02));
 		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, -0.02));
 		animationPacmanIndex = 1;
-
-		position = position - scaleV * forwardView;
-		camera3rd.Front = forwardView;
-		camera3rd.ProcessKeyboard(BACKWARD, deltaTime);
-		camera3rd.Position = position;
-		camera3rd.Position.y += 1.7f;
-		camera3rd.Position -= trdpersonOffset * forwardView;
 	}
 	
+
 	//PACAMAN controls run
 	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
 		modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, 0.02f, glm::vec3(0, 1, 0));
