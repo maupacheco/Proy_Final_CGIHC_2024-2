@@ -168,6 +168,9 @@ glm::mat4 modelMatrixEclipse = glm::mat4(1.0f);
 glm::mat4 modelMatrixPacmanCorriendo = glm::mat4(1.0f);
 glm::mat4 modelMatrixPacmanDescanso = glm::mat4(1.0f);
 int animationPacmanIndex = 0;
+//Modelo Man y Dog
+glm::mat4 modelMatrixMan = glm::mat4(1.0f);
+glm::mat4 modelMatrixDog = glm::mat4(1.0f);
 
 
 float tradius = 10.0f;
@@ -259,7 +262,7 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/IllumModels/House03.fbx");
+	house = new Model("models/ModelsMall/CentroComercialPrueba.fbx");
 	door = new Model("models/IllumModels/Door.fbx");
 	moon = new Model("models/IllumModels/moon.fbx");
 	gridMesh = new Model("models/IllumModels/grid.fbx");
@@ -612,11 +615,10 @@ bool Update() {
 		dynamicShader->setMat4("view", view);
 
 		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
-
-		dynamicShader->setMat4("model", model);
+		glm::mat4 modelManBody = glm::mat4(modelMatrixMan);
+		modelManBody = glm::rotate(modelManBody, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		modelManBody = glm::scale(modelManBody, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
+		dynamicShader->setMat4("model", modelManBody);
 
 		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelMan->gBones);
 
@@ -640,12 +642,12 @@ bool Update() {
 		dynamicShader->setMat4("view", view);
 
 		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
-		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.002f, 0.002f, 0.002f));	// it's a bit too big for our scene, so scale it down
+		glm::mat4 modelDogBody = glm::mat4(modelMatrixDog);
+		modelDogBody = glm::translate(modelDogBody, glm::vec3(0.0f, 0.0f, 3.0f));
+		modelDogBody = glm::rotate(modelDogBody, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		modelDogBody = glm::scale(modelDogBody, glm::vec3(0.003f, 0.003f, 0.003f));	// it's a bit too big for our scene, so scale it down
 
-		dynamicShader->setMat4("model", model);
+		dynamicShader->setMat4("model", modelDogBody);
 
 		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelDog->gBones);
 
@@ -654,7 +656,6 @@ bool Update() {
 	}
 
 	glUseProgram(0);
-	
 
 
 	// glfw: swap buffers 
@@ -684,15 +685,6 @@ void processInput(GLFWwindow* window)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		door_offset += 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-		door_offset -= 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-		door_rotation += 1.f;
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-		door_rotation -= 1.f;
 
 	if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
 		activeCamera = 0;
@@ -850,6 +842,36 @@ void processInput(GLFWwindow* window)
 		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, -0.02));
 		animationPacmanIndex = 1;
 	}
+
+
+	//ASIGNACION DE TECLAS Dog y Man
+
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+
+		modelMatrixMan = glm::rotate(modelMatrixMan, 0.02f, glm::vec3(0, 1, 0));
+		modelMatrixDog = glm::rotate(modelMatrixDog, 0.02f, glm::vec3(0, 1, 0));
+
+	}
+	else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+
+
+		modelMatrixMan = glm::rotate(modelMatrixMan, -0.02f, glm::vec3(0, 1, 0));
+		modelMatrixDog = glm::rotate(modelMatrixDog, -0.02f, glm::vec3(0, 1, 0));
+
+	}
+	else if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+
+		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, 0.02));
+		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, 0.02));
+
+	}
+	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+
+
+		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, -0.02));
+		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, -0.02));
+	}
+
 }
 
 // glfw: Actualizamos el puerto de vista si hay cambios del tamaño
