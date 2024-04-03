@@ -136,6 +136,10 @@
     <ClCompile Include="..\..\CodigoFinalCG-Actualizado.cpp" />
     <ClCompile Include="..\..\stb_image.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\bin\shaders\11_BasicPhongShader.fs" />
+    <None Include="..\..\..\bin\shaders\11_PhongShaderMultLights.fs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

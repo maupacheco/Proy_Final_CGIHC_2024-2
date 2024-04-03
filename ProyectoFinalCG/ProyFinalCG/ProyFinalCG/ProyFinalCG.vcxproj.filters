@@ -22,4 +22,12 @@
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\bin\shaders\11_BasicPhongShader.fs">
+      <Filter>Archivos de encabezado</Filter>
+    </None>
+    <None Include="..\..\..\bin\shaders\11_PhongShaderMultLights.fs">
+      <Filter>Archivos de encabezado</Filter>
+    </None>
+  </ItemGroup>
 </Project>

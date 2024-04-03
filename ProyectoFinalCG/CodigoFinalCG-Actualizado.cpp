@@ -48,8 +48,10 @@ const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 // Definición de cámara (posición en XYZ)
-Camera camera(glm::vec3(0.0f, 2.0f, 10.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 25.0f));
 Camera camera3rd(glm::vec3(0.0f, 0.0f, 0.0f));
+
+
 
 // Controladores para el movimiento del mouse
 float lastX = SCR_WIDTH / 2.0f;
@@ -67,28 +69,19 @@ float	movAuto_x = 0.0f,
 		movAuto_z = 0.0f,
 		orienta = 0.0f;
 
-//Animacion Basica 1
-bool animacionActiva = false;
 
-//bool	/*animacionB1 = true,*/
-//		animacionB2 = false,
-//		animacionB3 = false,
-//		animacionC1 = true,
-//		animacionC2 = true,
-//		animacionC3 = true,
-//		recorrido1 = true,
-//		recorrido2 = false,
-//		recorrido3 = false,
-//		recorrido4 = false;
+
 
 glm::vec3 position(0.0f, 0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
-float     trdpersonOffset = 1.5f;
+float     trdpersonOffset = 1.0f;
 float     scaleV = 0.025f;
 float     rotateCharacter = 0.0f;
 float	  door_offset = 0.0f;
 float	  door_rotation = 0.0f;
 
+//Animacion Basica 1
+bool animacionActiva = false;
 /*Variables para animacionB1*/
 float	carroPosX = -1.0f;
 float	carroVelocidad = 1.0f;
@@ -125,17 +118,19 @@ int modelSelected = 0;
 Shader* mLightsShader;
 Shader* proceduralShader;
 Shader* wavesShader;
-
 Shader* cubemapShader;
 Shader* dynamicShader;
-
 Shader* staticShader;
+Shader* basicShader;
+
 
 // Carga la información del modelo
 Model* house;
 Model* door;
 Model* moon;
 Model* gridMesh;
+
+Model* lightDummy;
 
 //Modelo Ave - Cuervo
 Model* cuervo;
@@ -185,14 +180,13 @@ std::vector<Light> gLights;
 
 // Materiales
 Material material01;
-
 float proceduralTime = 0.0f;
 float wavesTime = 0.0f;
 
 // Audio
 ISoundEngine* SoundEngine = createIrrKlangDevice();
 
-// selección de cámara
+//// selección de cámara
 bool    activeCamera = 1; // activamos la primera cámara
 
 
@@ -255,6 +249,8 @@ bool Start() {
 	cubemapShader = new Shader("shaders/10_vertex_cubemap.vs", "shaders/10_fragment_cubemap.fs");
 	dynamicShader = new Shader("shaders/10_vertex_skinning-IT.vs", "shaders/10_fragment_skinning-IT.fs");
 	staticShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
+	basicShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
+
 
 	// Máximo número de huesos: 100
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -309,26 +305,36 @@ bool Start() {
 	// Lights configuration
 
 	Light light01;
-	light01.Position = glm::vec3(5.0f, 2.0f, 5.0f);
-	light01.Color = glm::vec4(0.2f, 0.0f, 0.0f, 1.0f);
+	light01.Position = glm::vec3(5.0f, 4.0f, 5.0f);
+	light01.Color = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 	gLights.push_back(light01);
 
 	Light light02;
-	light02.Position = glm::vec3(-5.0f, 2.0f, 5.0f);
-	light02.Color = glm::vec4(0.0f, 0.2f, 0.0f, 1.0f);
+	light02.Position = glm::vec3(-5.0f, 4.0f, 5.0f);
+	light02.Color = glm::vec4(0.0f, 0.1f, 0.0f, 1.0f);
 	gLights.push_back(light02);
 
 	Light light03;
-	light03.Position = glm::vec3(5.0f, 2.0f, -5.0f);
-	light03.Color = glm::vec4(0.0f, 0.0f, 0.2f, 1.0f);
+	light03.Position = glm::vec3(5.0f, 4.0f, -5.0f);
+	light03.Color = glm::vec4(0.0f, 0.0f, 0.1f, 1.0f);
 	gLights.push_back(light03);
 
 	Light light04;
-	light04.Position = glm::vec3(-5.0f, 2.0f, -5.0f);
-	light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
+	light04.Position = glm::vec3(-5.0f, 4.0f, -5.0f);
+	light04.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	gLights.push_back(light04);
 
-	//SoundEngine->play2D("sound/EternalGarden.mp3", true);
+	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
+
+	// Configuración de propiedades materiales
+	// Tabla: http://devernay.free.fr/cours/opengl/materials.html
+	material01.ambient = glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f);
+	material01.diffuse = glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f);
+	material01.specular = glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f);
+	material01.transparency = 1.0f;
+
+	SoundEngine->play2D("sound/biodynamic.mp3", true);
+
 
 	return true;
 }
@@ -377,11 +383,16 @@ bool Update() {
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	/*glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+	glm::mat4 view = camera.GetViewMatrix();*/
+
 	glm::mat4 projection;
 	glm::mat4 view;
 
 	if (activeCamera) {
 		// Cámara en primera persona
+		
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
 		view = camera.GetViewMatrix();
 	}
@@ -657,6 +668,29 @@ bool Update() {
 
 	glUseProgram(0);
 
+	// Deplegamos los indicadores auxiliares de cada fuente de iluminación
+	{
+		basicShader->use();
+
+		basicShader->setMat4("projection", projection);
+		basicShader->setMat4("view", view);
+
+		glm::mat4 model;
+
+		for (size_t i = 0; i < gLights.size(); ++i) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, gLights[i].Position);
+			model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+			basicShader->setMat4("model", model);
+
+			lightDummy->Draw(*basicShader);
+		}
+
+	}
+
+	glUseProgram(0);
+
 
 	// glfw: swap buffers 
 	glfwSwapBuffers(window);
@@ -858,6 +892,7 @@ void processInput(GLFWwindow* window)
 		modelMatrixMan = glm::rotate(modelMatrixMan, -0.02f, glm::vec3(0, 1, 0));
 		modelMatrixDog = glm::rotate(modelMatrixDog, -0.02f, glm::vec3(0, 1, 0));
 
+
 	}
 	else if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
 
@@ -866,12 +901,24 @@ void processInput(GLFWwindow* window)
 
 	}
 	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-
-
+		
 		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, -0.02));
 		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, -0.02));
 	}
 
+	//Luz
+	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+		gLights.at(0).Position.x += 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+		gLights.at(0).Position.x -= 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+		gLights.at(0).Position.z += 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+		gLights.at(0).Position.z -= 0.1f;
+	}
 }
 
 // glfw: Actualizamos el puerto de vista si hay cambios del tamaño
