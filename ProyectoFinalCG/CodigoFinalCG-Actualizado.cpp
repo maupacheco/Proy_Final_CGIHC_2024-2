@@ -64,13 +64,6 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 
-// posiciones
-float	movAuto_x = 0.0f,
-		movAuto_z = 0.0f,
-		orienta = 0.0f;
-
-
-
 
 glm::vec3 position(0.0f, 0.0f, 0.0f);
 glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
@@ -80,17 +73,20 @@ float     rotateCharacter = 0.0f;
 float	  door_offset = 0.0f;
 float	  door_rotation = 0.0f;
 
-//Animacion Basica 1
-bool animacionActiva = false;
+/**************************************************/
 /*Variables para animacionB1*/
-float	carroPosX = -1.0f;
-float	carroVelocidad = 1.0f;
-bool	movDerecha_carro = true;
-float	giraCarro = 90.0f;
+//Animacion Basica 1 RappiDelivey
+bool animacionActiva = false;
+float	motoPosX = -1.0f;
+float	motoVelocidad = 0.2f;
+bool	movDerecha_moto = true;
+float	giraMoto = 90.0f;
+/**************************************************/
 
+
+/**************************************************/
 /*Variables para el eclipse*/
 // Aplicamos transformaciones del modelo
-
 int state = 0;
 float advanceCount = 0.0;
 float rotCount = 0.0;
@@ -99,19 +95,19 @@ float rotWheelsY = 0.0;
 int numberAdvance = 0;
 int maxAdvance = 0.0;
 bool avanceAutomatico = false;
-
-
-
 // Variables animacion maquina de estados eclipse
 float velocidadAnimacion = 0.5f; // Puedes ajustar este valor según sea necesario
 float tiempoTranscurrido = 0.0f; // Declaración de la variable global
 const float avance = 0.05f;
 const float giroEclipse = 0.5f;
+/**************************************************/
 
+
+/**************************************************/
+/*Variables para el Pac-Man*/
 //Variables globales para pacman
 int modelSelected = 0;
-
-
+/**************************************************/
 
 
 // Shaders
@@ -129,32 +125,27 @@ Model* house;
 Model* door;
 Model* moon;
 Model* gridMesh;
-
+//Indice para las luces
 Model* lightDummy;
 
+/**************************************************/
+//Carga de modelos
 //Modelo Ave - Cuervo
 Model* cuervo;
-
-
-//Modelo Carro (Reemplazar por moto)
-Model* carroM;
-
+//Modelo MotoDelivery
+Model* RappiDelivery;
 //Modelo Eclipse 
 Model* modelEclipseChasis;
 Model* modelEclipseRearWheels;
 Model* modelEclipseFrontalWheels;
-
 //Modelo KeyFrames Pacman
-//Cargamos los modelos para la animacion de pacman
 AnimatedModel* modelPacManDescanso;
 AnimatedModel* modelPacManCorriendo;
-
 //Modelo Hombre Paseando Perro
 AnimatedModel* modelMan;
 AnimatedModel* modelDog;
 
-
-
+/**************************************************/
 //Definiciones de los modelos
 
 //Eclipse
@@ -268,7 +259,7 @@ bool Start() {
 
 
 	//Carro Para Centro Comercial
-	carroM = new Model("models/ModelsMall/carro/carro1.obj");
+	RappiDelivery = new Model("models/ModelsMall/RappiDelivery.fbx");
 
 	// Eclipse
 	modelEclipseChasis = new Model("models/ModelsMall/Eclipse/2003eclipse_chasis.obj");
@@ -305,32 +296,39 @@ bool Start() {
 	// Lights configuration
 
 	Light light01;
-	light01.Position = glm::vec3(5.0f, 4.0f, 5.0f);
-	light01.Color = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	light01.Position = glm::vec3(5.0f, 2.0f, 5.0f);
+	light01.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+	light01.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light01.alphaIndex = 11;
 	gLights.push_back(light01);
 
-	Light light02;
-	light02.Position = glm::vec3(-5.0f, 4.0f, 5.0f);
-	light02.Color = glm::vec4(0.0f, 0.1f, 0.0f, 1.0f);
+
+	/*Light light02;
+	light02.Position = glm::vec3(-5.0f, 2.0f, 5.0f);
+	light02.Color = glm::vec4(0.0f, 0.2f, 0.0f, 1.0f);
+	light02.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
 	gLights.push_back(light02);
 
+
 	Light light03;
-	light03.Position = glm::vec3(5.0f, 4.0f, -5.0f);
-	light03.Color = glm::vec4(0.0f, 0.0f, 0.1f, 1.0f);
+	light03.Position = glm::vec3(5.0f, 2.0f, -5.0f);
+	light03.Color = glm::vec4(0.0f, 0.0f, 0.2f, 1.0f);
+	light03.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
 	gLights.push_back(light03);
 
 	Light light04;
-	light04.Position = glm::vec3(-5.0f, 4.0f, -5.0f);
-	light04.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	gLights.push_back(light04);
+	light04.Position = glm::vec3(-5.0f, 2.0f, -5.0f);
+	light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
+	light04.Power = glm::vec4(10.0f, 10.0f, 10.0f, 1.0f);
+	gLights.push_back(light04);*/
 
 	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
 
 	// Configuración de propiedades materiales
 	// Tabla: http://devernay.free.fr/cours/opengl/materials.html
-	material01.ambient = glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f);
-	material01.diffuse = glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f);
-	material01.specular = glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f);
+	material01.ambient = glm::vec4(0.25f, 0.20725f, 0.20725f, 1.0f);
+	material01.diffuse = glm::vec4(1.0f, 0.829f, 0.829f, 1.0f);
+	material01.specular = glm::vec4(0.296648f, 0.296648f, 0.296648f, 1.0f);
 	material01.transparency = 1.0f;
 
 	SoundEngine->play2D("sound/biodynamic.mp3", true);
@@ -478,12 +476,12 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 17.0f, -5.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotación adicional para corregir la orientación
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotación adicional para corregir la orientación
 
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		proceduralShader->setMat4("model", model);
 
 		proceduralShader->setFloat("time", proceduralTime);
@@ -514,12 +512,12 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(carroPosX, 1.5f, 1.5f));
-		model = glm::scale(model, glm::vec3(0.2));
-		model = glm::rotate(model, glm::radians(giraCarro), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(motoPosX, 1.5f, 1.5f));
+		model = glm::scale(model, glm::vec3(2.0));
+		model = glm::rotate(model, glm::radians(giraMoto), glm::vec3(0.0f, 1.0f, 0.0f));
 		staticShader->setMat4("model", model);
 
-		carroM->Draw(*staticShader);
+		RappiDelivery->Draw(*staticShader);
 	}
 	glUseProgram(0);
 	
@@ -594,7 +592,7 @@ bool Update() {
 			dynamicShader->setMat4("model", modelMatrixPacmanCorriendoBody);
 			dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelPacManCorriendo->gBones);
 			// Dibujamos el modelo
-			//modelPacManCorriendo->Draw(*dynamicShader);
+			modelPacManCorriendo->Draw(*dynamicShader);
 		}
 		else {
 			glm::mat4 modelMatrixPacmanDescansoBody = glm::mat4(modelMatrixPacmanDescanso);
@@ -604,7 +602,7 @@ bool Update() {
 			dynamicShader->setMat4("model", modelMatrixPacmanDescansoBody);
 			dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelPacManDescanso->gBones);
 			// Dibujamos el modelo
-			//modelPacManDescanso->Draw(*dynamicShader);
+			modelPacManDescanso->Draw(*dynamicShader);
 		}
 
 		glUseProgram(0);
@@ -728,33 +726,33 @@ void processInput(GLFWwindow* window)
 
 	//Animaciones Con implementacion de teclas
 
-	//AnimacionB1 Carro
+	//Animacion Basica 1 RappiDelivery 
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
 		// Si se presiona la tecla 'C', cambiar el estado de la animación
 		animacionActiva = !animacionActiva;
 	}
 	// Si la animación está activa
 	if (animacionActiva) {
-		if (movDerecha_carro) {
-			carroPosX += carroVelocidad * deltaTime * 100.05;
-			if (carroPosX >= 110.0f) {
-				carroPosX = 110.0f;
-				giraCarro = -90.0f;
-				movDerecha_carro = false;
+		if (movDerecha_moto) {
+			motoPosX += motoVelocidad * deltaTime * 50.05;
+			if (motoPosX >= 50.0f) {
+				motoPosX = 50.0f;
+				giraMoto = -90.0f;
+				movDerecha_moto = false;
 			}
 		}
 		else {
-			carroPosX -= carroVelocidad * deltaTime * 100.05;
-			if (carroPosX <= -110.0f) {
-				carroPosX = -110.0f;
-				giraCarro = 90.0f;
-				movDerecha_carro = true;
+			motoPosX -= motoVelocidad * deltaTime * 50.05;
+			if (motoPosX <= -50.0f) {
+				motoPosX = -50.0f;
+				giraMoto = 90.0f;
+				movDerecha_moto = true;
 			}
 		}
 	}
 
 
-	//Animacion Eclipse
+	//Animacion Recorrido Coche Eclipse
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
 		// Cambio al nuevo estado para iniciar el recorrido automático
 		if (state == 3) { // Si la animación está detenida, reanudarla
