@@ -496,7 +496,7 @@ bool Update() {
 	glUseProgram(0);
 
 
-	//Animacion Carro
+	//Animacion DeliveryRappi
 	
 	{
 		// Activamos el shader del plano

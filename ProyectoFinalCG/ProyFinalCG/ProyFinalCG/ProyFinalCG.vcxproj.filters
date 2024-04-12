@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\stb_image.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\PruebasMultiluces.cpp">
+    <ClCompile Include="..\..\PruebasCargasModelos.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>

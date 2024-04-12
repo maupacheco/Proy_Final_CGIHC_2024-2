@@ -68,6 +68,10 @@ Shader *dynamicShader;
 
 // Carga la información del modelo
 Model	        *house;
+Model			*piso;
+Model			*pasto1;
+Model			*rock;
+Model			*picnic;
 // Model *chair, *table;
 AnimatedModel* character;
 
@@ -142,7 +146,12 @@ bool Start() {
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
 
 	// Actividad 2.0: Importar modelo de casa
-	house = new Model("models/ModelsMall/CentroComercialPrueba.fbx");
+	//house = new Model("models/ModelsMall/pisoExterior/pisoExterior.obj");
+	house = new Model("models/ModelsMall/CCBlackFinal.fbx");
+	piso = new Model("models/ModelsMall/pisoExterior/pisoExterior.obj");
+	pasto1 = new Model("models/ModelsMall/smallGrass.fbx");
+	rock = new Model("models/ModelsMall/rock.fbx");
+	picnic = new Model("models/ModelsMall/picnicFinal.fbx");
 
 	// Dibujar en distintos modos de despliegue
 	//	   GL_LINE: Modo Malla de alambre
@@ -179,8 +188,8 @@ bool Update() {
 	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
 	glm::mat4 view = camera.GetViewMatrix();
 	
-	// Actividad 2.1: Dibujar modelo de casa
-	// Objeto estático (casa)
+
+	// Objeto estático (Comercial) Bien escalado y puesto
 	{
 		// Activamos el shader del plano
 		staticShader->use();
@@ -195,13 +204,122 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -2.35f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(0.0f, 0.025f, 0.0f)); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		staticShader->setMat4("model", model);
 
 		house->Draw(*staticShader);
 	} 
+
+	glUseProgram(0);
+
+	//Piso Exterior Principal Escalado y modelado
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.525f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		piso->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
+
+	//Pasto 1
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.485f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		pasto1->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.385f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		pasto1->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
+
+	//piedra 1
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		rock->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
+
+	//picnic
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-15.0f, 0.5f, 25.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.75f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		picnic->Draw(*staticShader);
+	}
 
 	glUseProgram(0);
 
@@ -229,7 +347,7 @@ bool Update() {
 		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, character->gBones);
 
 		// Dibujamos el modelo
-		character->Draw(*dynamicShader);
+		//character->Draw(*dynamicShader);
 	}
 
 	// Desactivamos el shader actual
