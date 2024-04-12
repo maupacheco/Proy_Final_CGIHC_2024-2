@@ -1,6 +1,8 @@
 # Proy_Final_CGIHC_2024-2
 Repositorio Para el proyecto Final de computación gráfica
+
 Manual de Usuario 📖
+
 Proyecto Final Laboratorio de Computación Gráfica E Interacción Humano-Computadora
 
 Integrantes:
