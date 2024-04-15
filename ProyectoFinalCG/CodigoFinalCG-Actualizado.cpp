@@ -48,7 +48,7 @@ const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 // Definición de cámara (posición en XYZ)
-Camera camera(glm::vec3(0.0f, 10.0f, 25.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 35.0f));
 Camera camera3rd(glm::vec3(0.0f, 0.0f, 0.0f));
 
 
@@ -98,7 +98,7 @@ bool avanceAutomatico = false;
 // Variables animacion maquina de estados eclipse
 float velocidadAnimacion = 0.5f; // Puedes ajustar este valor según sea necesario
 float tiempoTranscurrido = 0.0f; // Declaración de la variable global
-const float avance = 0.05f;
+const float avance = 0.09f;
 const float giroEclipse = 0.5f;
 /**************************************************/
 
@@ -121,7 +121,8 @@ Shader* basicShader;
 
 
 // Carga la información del modelo
-Model* house;
+Model* centroComercial;
+Model* piso;
 Model* door;
 Model* moon;
 Model* gridMesh;
@@ -130,20 +131,33 @@ Model* lightDummy;
 
 /**************************************************/
 //Carga de modelos
-//Modelo Ave - Cuervo
-Model* cuervo;
-//Modelo MotoDelivery
+
+//Modelo AguilaBlanca - Animacion Procedural 01
+Model* AguilaBlanca;
+//Modelo MotoDelivery - Animacion Basica 02
 Model* RappiDelivery;
-//Modelo Eclipse 
+//Modelo - Animacion Hombre Paseando Perro Basica 03
+AnimatedModel* modelMan;
+AnimatedModel* modelDog;
+//Modelo Eclipse - Animacion KeyFrames 04
 Model* modelEclipseChasis;
 Model* modelEclipseRearWheels;
 Model* modelEclipseFrontalWheels;
-//Modelo KeyFrames Pacman
+//Modelo Pacman - Animacion KeyFrames 05
 AnimatedModel* modelPacManDescanso;
 AnimatedModel* modelPacManCorriendo;
-//Modelo Hombre Paseando Perro
-AnimatedModel* modelMan;
-AnimatedModel* modelDog;
+
+//Modelos ---> Sala Nike 01
+Model			*mesaManiquieNike;
+Model			*cajaCobro;
+Model			*probadores;
+Model			*ShoesFinal;
+
+
+/*Modelos Extras*/
+Model* picnic;
+Model* pasto1;
+Model* rock;
 
 /**************************************************/
 //Definiciones de los modelos
@@ -249,19 +263,21 @@ bool Start() {
 	// Dibujar en malla de alambre
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	house = new Model("models/ModelsMall/CentroComercialPrueba.fbx");
-	door = new Model("models/IllumModels/Door.fbx");
-	moon = new Model("models/IllumModels/moon.fbx");
-	gridMesh = new Model("models/IllumModels/grid.fbx");
+	/*********************Se cargan los modelos del centro comercial*************************/
 
-	//Ave - Cuervo Animado Para Centro Comercial
-	cuervo = new Model("models/ModelsMall/aves/aves1.obj");
+	//Estructura Centro Comercial
+	centroComercial = new Model("models/ModelsMall/CCBlackFinal.fbx");
 
+	//Piso Centro Comercial
+	piso = new Model("models/ModelsMall/pisoExterior/pisoExterior.obj");
 
-	//Carro Para Centro Comercial
+	//Ave - Aguila Animado Para Centro Comercial --> Animacion 01 - Procedural
+	AguilaBlanca = new Model("models/ModelsMall/AguilaBlancaFinal.obj");
+
+	//MotoRappi Para Centro Comercial --> Animacion 02 Basica
 	RappiDelivery = new Model("models/ModelsMall/RappiDelivery.fbx");
 
-	// Eclipse
+	// Carro Eclipse
 	modelEclipseChasis = new Model("models/ModelsMall/Eclipse/2003eclipse_chasis.obj");
 	modelEclipseFrontalWheels = new Model("models/ModelsMall/Eclipse/2003eclipse_frontal_wheels.obj");
 	modelEclipseRearWheels = new Model("models/ModelsMall/Eclipse/2003eclipse_rear_wheels.obj");
@@ -274,6 +290,16 @@ bool Start() {
 	modelMan = new AnimatedModel("models/ModelsMall/manWalkingFinal.fbx");
 	modelDog = new AnimatedModel("models/ModelsMall/DogGolden.fbx");
 
+	/**********Modelos Extras Al exterior*********/
+	picnic = new Model("models/ModelsMall/picnicFinal.fbx");
+	rock = new Model("models/ModelsMall/rock.fbx");
+
+	/********** Modelos SALA NIKE 01 *********/
+	mesaManiquieNike = new Model("models/ModelsMall/SalaNike/mesaManiquie1.fbx");
+	cajaCobro = new Model("models/ModelsMall/SalaNike/cajaCobro.fbx");
+	probadores = new Model("models/ModelsMall/SalaNike/probadores.fbx");
+	ShoesFinal = new Model("models/ModelsMall/SalaNike/ShoesStand/ShoesFinal.obj");
+	
 
 	// Cubemap
 	vector<std::string> faces
@@ -381,10 +407,6 @@ bool Update() {
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-	/*glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
-	glm::mat4 view = camera.GetViewMatrix();*/
-
 	glm::mat4 projection;
 	glm::mat4 view;
 
@@ -405,6 +427,7 @@ bool Update() {
 		mainCubeMap->drawCubeMap(*cubemapShader, projection, view);
 	}
 
+	//Centro Comercial
 	{
 		mLightsShader->use();
 
@@ -417,10 +440,10 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(0.0f, 0.025f, 0.0f)); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		mLightsShader->setMat4("model", model);
+		staticShader->setMat4("model", model);
 
 		// Configuramos propiedades de fuentes de luz
 		mLightsShader->setInt("numLights", (int)gLights.size());
@@ -441,7 +464,7 @@ bool Update() {
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
 
-		house->Draw(*mLightsShader);
+		centroComercial->Draw(*mLightsShader);
 
 		// model = glm::mat4(1.0f);
 
@@ -459,9 +482,121 @@ bool Update() {
 
 	glUseProgram(0);
 
+	//Piso Exterior Principal Escalado y modelado
+	{
+		// Activamos el shader del plano
+		staticShader->use();
 
-	// Animacion Cuervo 
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.525f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		piso->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
+
+	/**********Modelos Extras Estaticos Dibujados*****************/
 	
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo -----> Picnic
+		glm::mat4 modelPicnic = glm::mat4(1.0f);
+		modelPicnic = glm::translate(modelPicnic, glm::vec3(-15.0f, 0.5f, 25.0f)); // translate it down so it's at the center of the scene
+		modelPicnic = glm::scale(modelPicnic, glm::vec3(1.75f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelPicnic);
+
+		picnic->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -----> Rock1
+		glm::mat4 modelRock = glm::mat4(1.0f);
+		modelRock = glm::translate(modelRock, glm::vec3(-40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		modelRock = glm::rotate(modelRock, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelRock = glm::scale(modelRock, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelRock);
+
+		rock->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
+
+	//mesaSalaNikeManique
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Mesa Manique
+		glm::mat4 modelMesa = glm::mat4(1.0f);
+		modelMesa = glm::translate(modelMesa, glm::vec3(-8.11834f, 6.95, -7.5f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelMesa = glm::scale(modelMesa, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelMesa);
+
+		mesaManiquieNike->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Caja Registradora
+		glm::mat4 modelCaja = glm::mat4(1.0f);
+		modelCaja = glm::translate(modelCaja, glm::vec3(-8.11834f, 6.95, -3.5f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelCaja = glm::scale(modelCaja, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelCaja);
+
+		cajaCobro->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Probadores
+		glm::mat4 modelProbadores = glm::mat4(1.0f);
+		modelProbadores = glm::translate(modelProbadores, glm::vec3(-7.7f, 7.0, -4.0f)); // translate it down so it's at the center of the scene
+		modelProbadores = glm::rotate(modelProbadores, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelProbadores = glm::scale(modelProbadores, glm::vec3(0.008f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelProbadores);
+
+		probadores->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Tenis
+		glm::mat4 modelShoes = glm::mat4(1.0f);
+		modelShoes = glm::translate(modelShoes, glm::vec3(-7.7f, 7.0, 0.0f)); // translate it down so it's at the center of the scene
+		//modelShoes = glm::rotate(modelShoes, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelShoes = glm::scale(modelShoes, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelShoes);
+
+		ShoesFinal->Draw(*staticShader);
+
+
+	}
+
+	glUseProgram(0); 
+
+	// Animacion Aguila --> Procedural 01 
+
 	{
 		// Activamos el shader de Phong
 		proceduralShader->use();
@@ -474,22 +609,20 @@ bool Update() {
 		proceduralShader->setMat4("projection", projection);
 		proceduralShader->setMat4("view", view);
 
+
 		// Aplicamos transformaciones del modelo
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 17.0f, -5.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -17.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotación adicional para corregir la orientación
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotación adicional para corregir la orientación
-
-		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::scale(model, glm::vec3(5.0f));
 		proceduralShader->setMat4("model", model);
 
 		proceduralShader->setFloat("time", proceduralTime);
-		proceduralShader->setFloat("radius", 60.0f);
-		proceduralShader->setFloat("height", 0.0f);
+		proceduralShader->setFloat("radius", 4.2f);
+		proceduralShader->setFloat("height", 3.5f);
 
-		cuervo->Draw(*proceduralShader);
-		proceduralTime += 0.005;
+		AguilaBlanca->Draw(*proceduralShader);
+		proceduralTime += 0.010;
 
 	}
 
@@ -510,12 +643,12 @@ bool Update() {
 		staticShader->setMat4("projection", projection);
 		staticShader->setMat4("view", view);
 
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(motoPosX, 1.5f, 1.5f));
-		model = glm::scale(model, glm::vec3(2.0));
-		model = glm::rotate(model, glm::radians(giraMoto), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader->setMat4("model", model);
+		// Aplicamos transformaciones del modelo --> RappiDelivery
+		glm::mat4 modelRappi = glm::mat4(1.0f);
+		modelRappi = glm::translate(modelRappi, glm::vec3(motoPosX, 0.0f, 12.0f));
+		modelRappi = glm::scale(modelRappi, glm::vec3(1.25));
+		modelRappi = glm::rotate(modelRappi, glm::radians(giraMoto), glm::vec3(0.0f, 1.0f, 0.0f));
+		staticShader->setMat4("model", modelRappi);
 
 		RappiDelivery->Draw(*staticShader);
 	}
@@ -541,7 +674,7 @@ bool Update() {
 
 		// Render for the eclipse car
 		glm::mat4 modelMatrixEclipseChasis = glm::mat4(modelMatrixEclipse);
-		modelMatrixEclipseChasis = glm::scale(modelMatrixEclipse, glm::vec3(0.5, 0.5, 0.5));
+		modelMatrixEclipseChasis = glm::scale(modelMatrixEclipse, glm::vec3(0.4, 0.4, 0.4));
 		staticShader->setMat4("model", modelMatrixEclipseChasis);
 		//Se dibuja
 		modelEclipseChasis->Draw(*staticShader);
@@ -586,9 +719,9 @@ bool Update() {
 
 		if (animationPacmanIndex == 1) {
 			glm::mat4 modelMatrixPacmanCorriendoBody = glm::mat4(modelMatrixPacmanCorriendo);
-			modelMatrixPacmanCorriendoBody = glm::translate(modelMatrixPacmanCorriendoBody, glm::vec3(0.0f, 1.5f, 0.0f));
+			modelMatrixPacmanCorriendoBody = glm::translate(modelMatrixPacmanCorriendoBody, glm::vec3(0.0f, 1.0f, 0.0f));
 			modelMatrixPacmanCorriendoBody = glm::rotate(modelMatrixPacmanCorriendoBody, glm::radians(180.0f), glm::vec3(0.0, 1.0f, 0.0f));
-			modelMatrixPacmanCorriendoBody = glm::scale(modelMatrixPacmanCorriendoBody, glm::vec3(0.01f, 0.01f, 0.01f));
+			modelMatrixPacmanCorriendoBody = glm::scale(modelMatrixPacmanCorriendoBody, glm::vec3(0.007f, 0.007f, 0.007f));
 			dynamicShader->setMat4("model", modelMatrixPacmanCorriendoBody);
 			dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelPacManCorriendo->gBones);
 			// Dibujamos el modelo
@@ -596,9 +729,9 @@ bool Update() {
 		}
 		else {
 			glm::mat4 modelMatrixPacmanDescansoBody = glm::mat4(modelMatrixPacmanDescanso);
-			modelMatrixPacmanDescansoBody = glm::translate(modelMatrixPacmanDescansoBody, glm::vec3(0.0f, 1.5f, 0.0f));
+			modelMatrixPacmanDescansoBody = glm::translate(modelMatrixPacmanDescansoBody, glm::vec3(0.0f, 1.0f, 0.0f));
 			modelMatrixPacmanDescansoBody = glm::rotate(modelMatrixPacmanDescansoBody, glm::radians(180.0f), glm::vec3(0.0, 1.0f, 0.0f));
-			modelMatrixPacmanDescansoBody = glm::scale(modelMatrixPacmanDescansoBody, glm::vec3(0.01f, 0.01f, 0.01f));
+			modelMatrixPacmanDescansoBody = glm::scale(modelMatrixPacmanDescansoBody, glm::vec3(0.007f, 0.007f, 0.007f));
 			dynamicShader->setMat4("model", modelMatrixPacmanDescansoBody);
 			dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, modelPacManDescanso->gBones);
 			// Dibujamos el modelo
@@ -735,16 +868,16 @@ void processInput(GLFWwindow* window)
 	if (animacionActiva) {
 		if (movDerecha_moto) {
 			motoPosX += motoVelocidad * deltaTime * 50.05;
-			if (motoPosX >= 50.0f) {
-				motoPosX = 50.0f;
+			if (motoPosX >= 43.80f) {
+				motoPosX = 43.80f;
 				giraMoto = -90.0f;
 				movDerecha_moto = false;
 			}
 		}
 		else {
 			motoPosX -= motoVelocidad * deltaTime * 50.05;
-			if (motoPosX <= -50.0f) {
-				motoPosX = -50.0f;
+			if (motoPosX <= -43.80f) {
+				motoPosX = -43.80f;
 				giraMoto = 90.0f;
 				movDerecha_moto = true;
 			}
@@ -766,27 +899,33 @@ void processInput(GLFWwindow* window)
 	switch (state) {
 	case 0:
 		if (numberAdvance == 0)
-			maxAdvance = 65.0;
+			maxAdvance = 32.0;
 		else if (numberAdvance == 1)
-			maxAdvance = 49.0;
+			maxAdvance = 60.0;
 		else if (numberAdvance == 2)
-			maxAdvance = 44.5;
+			maxAdvance = 115.0;
 		else if (numberAdvance == 3)
-			maxAdvance = 49.0;
+			maxAdvance = 115.0;
 		else if (numberAdvance == 4)
-			maxAdvance = 44.5;
+			maxAdvance = 115.0;
+		else if (numberAdvance == 5)
+			maxAdvance = 115.0;
+		else if (numberAdvance == 6)
+			maxAdvance = 115.0;
 		state = 1;
 		break;
 	case 1:
 		modelMatrixEclipse = glm::translate(modelMatrixEclipse, glm::vec3(0.0f, 0.0f, avance * velocidadAnimacion));
 		advanceCount += avance;
-		rotWheelsX += 0.05;
-		rotWheelsY -= 0.02;
+		rotWheelsX += 0.05f;
+		rotWheelsY -= 0.02f;
 		if (rotWheelsY < 0)
 			rotWheelsY = 0;
 		if (advanceCount > maxAdvance) {
 			advanceCount = 0;
 			numberAdvance++;
+			if (numberAdvance > 6)
+				numberAdvance = 3; // Volver al inicio del recorrido
 			state = 2;
 		}
 		break;
@@ -794,25 +933,17 @@ void processInput(GLFWwindow* window)
 		modelMatrixEclipse = glm::translate(modelMatrixEclipse, glm::vec3(0.0, 0.0, 0.025f * velocidadAnimacion));
 		modelMatrixEclipse = glm::rotate(modelMatrixEclipse, glm::radians(giroEclipse), glm::vec3(0, 1, 0));
 		rotCount += giroEclipse;
-		rotWheelsX += 0.05;
-		rotWheelsY += 0.02;
-		if (rotWheelsY > 0.25)
-			rotWheelsY = 0.25;
+		rotWheelsX += 0.05f;
+		rotWheelsY += 0.02f;
+		if (rotWheelsY > 0.25f)
+			rotWheelsY = 0.25f;
 		if (rotCount >= 90.0f) {
 			rotCount = 0;
 			state = 0;
-			if (numberAdvance > 4)
-				numberAdvance = 1;
+			if (numberAdvance > 6)
+				numberAdvance = 3;
 		}
 		break;
-
-	case 3:// Nuevo estado para recorrido automático
-		 // Avance automático del objeto a lo largo de un recorrido predefinido
-		if (avanceAutomatico) {
-			modelMatrixEclipse = glm::translate(modelMatrixEclipse, glm::vec3(0.0f, 0.0f, avance * velocidadAnimacion));
-		}
-		break;
-
 	default:
 		break;
 	}

@@ -43,7 +43,7 @@ const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 // Definición de cámara (posición en XYZ)
-Camera camera(glm::vec3(0.0f, 2.0f, 10.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 40.0f));
 
 // Controladores para el movimiento del mouse
 float lastX = SCR_WIDTH / 2.0f;
@@ -62,9 +62,20 @@ float     scaleV = 0.005f;
 float     rotateCharacter = 0.0f;
 float     rotateTable = 0.0f;
 
+/**************************************************/
+/*Variables para animacionB1*/
+//Animacion Basica 1 RappiDelivey
+bool animacionActiva = false;
+float	motoPosX = -1.0f;
+float	motoVelocidad = 0.2f;
+bool	movDerecha_moto = true;
+float	giraMoto = 90.0f;
+/**************************************************/
+
 // Shaders
 Shader *staticShader;
 Shader *dynamicShader;
+Shader *proceduralShader;
 
 // Carga la información del modelo
 Model	        *house;
@@ -72,8 +83,52 @@ Model			*piso;
 Model			*pasto1;
 Model			*rock;
 Model			*picnic;
+Model			*soportePS;
+Model			*SolarPanel;
+
+//SALA NIKE
+//Model			*mesaManiquieNike;
+//Model			*cajaCobro;
+//Model			*probadores;
+//Model			*ShoesFinal;
+
 // Model *chair, *table;
 AnimatedModel* character;
+
+//AguilaProcedural
+//Model	*AguilaBlanca
+
+//Modelo Eclipse - Animacion KeyFrames 04
+Model* modelEclipseChasis;
+Model* modelEclipseRearWheels;
+Model* modelEclipseFrontalWheels;
+
+//Eclipse
+glm::mat4 modelMatrixEclipse = glm::mat4(1.0f);
+
+/**************************************************/
+/*Variables para el eclipse*/
+// Aplicamos transformaciones del modelo
+int state = 0;
+float advanceCount = 0.0;
+float rotCount = 0.0;
+float rotWheelsX = 0.0;
+float rotWheelsY = 0.0;
+int numberAdvance = 0;
+int maxAdvance = 0.0;
+bool avanceAutomatico = false;
+// Variables animacion maquina de estados eclipse
+float velocidadAnimacion = 0.5f; // Puedes ajustar este valor según sea necesario
+float tiempoTranscurrido = 0.0f; // Declaración de la variable global
+const float avance = 0.05f;
+const float giroEclipse = 0.5f;
+/**************************************************/
+
+float proceduralTime = 0.0f;
+
+float	  panel_offset = 0.0f;
+float	  panel_rotation = 0.0f;
+float	  panel_rotation1 = 0.0f;
 
 
 
@@ -141,6 +196,7 @@ bool Start() {
 	// Compilación y enlace de shaders
 	dynamicShader = new Shader("shaders/09_vertex_skinning.vs", "shaders/09_fragment_skinning.fs");
 	staticShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
+	proceduralShader = new Shader("shaders/12_ProceduralAnimation.vs", "shaders/12_ProceduralAnimation.fs");
 
 	// Máximo número de huesos: 100 por defecto
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -152,6 +208,25 @@ bool Start() {
 	pasto1 = new Model("models/ModelsMall/smallGrass.fbx");
 	rock = new Model("models/ModelsMall/rock.fbx");
 	picnic = new Model("models/ModelsMall/picnicFinal.fbx");
+	soportePS = new Model("models/ModelsMall/SolarPanels/soporteSolarPanel.obj");
+	SolarPanel = new Model("models/ModelsMall/SolarPanels/SolarPanel.obj");
+
+
+
+	//Sala Nike
+	//mesaManiquieNike = new Model("models/ModelsMall/SalaNike/mesaManiquie1.fbx");
+	//cajaCobro = new Model("models/ModelsMall/SalaNike/cajaCobro.fbx");
+	//probadores = new Model("models/ModelsMall/SalaNike/probadores.fbx");
+	//ShoesFinal = new Model("models/ModelsMall/SalaNike/ShoesStand/ShoesFinal.obj");
+
+	//Ave - Aguila Animado Para Centro Comercial
+	//AguilaBlanca = new Model("models/ModelsMall/AguilaBlancaFinal.obj");
+
+	// Carro Eclipse
+	modelEclipseChasis = new Model("models/ModelsMall/Eclipse/2003eclipse_chasis.obj");
+	modelEclipseFrontalWheels = new Model("models/ModelsMall/Eclipse/2003eclipse_frontal_wheels.obj");
+	modelEclipseRearWheels = new Model("models/ModelsMall/Eclipse/2003eclipse_rear_wheels.obj");
+
 
 	// Dibujar en distintos modos de despliegue
 	//	   GL_LINE: Modo Malla de alambre
@@ -273,8 +348,9 @@ bool Update() {
 
 	glUseProgram(0);
 
-	//piedra 1
-	{
+
+	//mesaSalaNikeManique
+	/*{
 		// Activamos el shader del plano
 		staticShader->use();
 
@@ -286,42 +362,80 @@ bool Update() {
 		staticShader->setMat4("projection", projection);
 		staticShader->setMat4("view", view);
 
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
-
-		rock->Draw(*staticShader);
-	}
-
-	glUseProgram(0);
-
-	//picnic
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-15.0f, 0.5f, 25.0f)); // translate it down so it's at the center of the scene
+		// Aplicamos transformaciones del modelo ----> Modelo Mesa Manique
+		glm::mat4 modelMesa = glm::mat4(1.0f);
+		modelMesa = glm::translate(modelMesa, glm::vec3(-8.11834f, 6.95, -7.5f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.75f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		modelMesa = glm::scale(modelMesa, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelMesa);
 
-		picnic->Draw(*staticShader);
+		mesaManiquieNike->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Caja Registradora
+		glm::mat4 modelCaja = glm::mat4(1.0f);
+		modelCaja = glm::translate(modelCaja, glm::vec3(-8.11834f, 6.95, -3.5f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelCaja = glm::scale(modelCaja, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelCaja);
+
+		cajaCobro->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Probadores
+		glm::mat4 modelProbadores = glm::mat4(1.0f);
+		modelProbadores = glm::translate(modelProbadores, glm::vec3(-7.7f, 7.0, -4.0f)); // translate it down so it's at the center of the scene
+		modelProbadores = glm::rotate(modelProbadores, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelProbadores = glm::scale(modelProbadores, glm::vec3(0.008f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelProbadores);
+
+		probadores->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Tenis
+		glm::mat4 modelShoes = glm::mat4(1.0f);
+		modelShoes = glm::translate(modelShoes, glm::vec3(-7.7f, 7.0, 0.0f)); // translate it down so it's at the center of the scene
+		//modelShoes = glm::rotate(modelShoes, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelShoes = glm::scale(modelShoes, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelShoes);
+
+		ShoesFinal->Draw(*staticShader);
+
+
 	}
 
-	glUseProgram(0);
+	glUseProgram(0); */ 
+
+
+	// Animacion Aguila 
+
+	/*{
+		// Activamos el shader de Phong
+		proceduralShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		proceduralShader->setMat4("projection", projection);
+		proceduralShader->setMat4("view", view);
+
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -17.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f));
+		proceduralShader->setMat4("model", model);
+
+		proceduralShader->setFloat("time", proceduralTime);
+		proceduralShader->setFloat("radius", 4.2f);
+		proceduralShader->setFloat("height", 3.5f);
+
+		AguilaBlanca->Draw(*proceduralShader);
+		proceduralTime += 0.0010;
+
+	}
+
+	glUseProgram(0);*/ 
 
 	// Actividad 3.1: Dibujar personaje
 	// Objeto dinámico (Personaje animado)
@@ -353,14 +467,90 @@ bool Update() {
 	// Desactivamos el shader actual
 	glUseProgram(0);
 
-	// Actividad 4.0
-	// Aquí desplegamos los demás modelos, cada uno con su propio
-	// ciclo de renderizado bajo el siguiente algoritmo
-	// a) Activar shader estático/dinámico
-	// b) Crear matrices de proyección, vista, modelo
-	// c) Enviar matrices al shader correspondiente
-	// d) Dibujar el modelo
-	// e) Desactivar shader
+
+	//Animacion Eclipse
+
+	/*{
+
+		// Activación del shader del personaje
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+		
+
+		// Render for the eclipse car
+		glm::mat4 modelMatrixEclipseChasis = glm::mat4(modelMatrixEclipse);
+		modelMatrixEclipseChasis = glm::scale(modelMatrixEclipseChasis, glm::vec3(0.5, 0.5, 0.5));
+		staticShader->setMat4("model", modelMatrixEclipseChasis);
+		//Se dibuja
+		modelEclipseChasis->Draw(*staticShader);
+
+
+		glm::mat4 modelMatrixFrontalWheels = glm::mat4(modelMatrixEclipseChasis); // (891)(892)(893)(894)
+
+		modelMatrixFrontalWheels = glm::translate(modelMatrixFrontalWheels, glm::vec3(0.0, 1.05813, 4.11483));
+		modelMatrixFrontalWheels = glm::rotate(modelMatrixFrontalWheels, rotWheelsY, glm::vec3(0, 1, 0));
+		modelMatrixFrontalWheels = glm::rotate(modelMatrixFrontalWheels, rotWheelsX, glm::vec3(1, 0, 0));
+		modelMatrixFrontalWheels = glm::translate(modelMatrixFrontalWheels, glm::vec3(0.0, -1.05813, -4.11483));
+		staticShader->setMat4("model", modelMatrixFrontalWheels);
+		//Se dibuja
+		modelEclipseFrontalWheels->Draw(*staticShader);
+
+
+		glm::mat4 modelMatrixRearWheels = glm::mat4(modelMatrixEclipseChasis);
+		modelMatrixRearWheels = glm::translate(modelMatrixRearWheels, glm::vec3(0.0, 1.05813, -4.35157));
+		modelMatrixRearWheels = glm::rotate(modelMatrixRearWheels, rotWheelsX, glm::vec3(1, 0, 0));
+		modelMatrixRearWheels = glm::translate(modelMatrixRearWheels, glm::vec3(0.0, -1.05813, 4.35157));
+		staticShader->setMat4("model", modelMatrixRearWheels);
+
+		modelEclipseRearWheels->Draw(*staticShader);
+
+	}
+
+	glUseProgram(0);*/ 
+
+	//Solar Panel
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(2.825f, 7.0f + panel_offset, 15.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+
+	}
+
+	glUseProgram(0);
 	
 	// glfw: swap buffers 
 	glfwSwapBuffers(window);
@@ -389,6 +579,22 @@ void processInput(GLFWwindow* window)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+
+	//Animaciones Con implementacion de teclas
+
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+		panel_offset += 0.01f;
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+		panel_offset -= 0.01f;
+	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+		panel_rotation += 1.f;
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+		panel_rotation -= 1.f;
+	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
+		panel_rotation1 += 1.f;
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
+		panel_rotation1 -= 1.f;
+
 
 	// Character movement
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
