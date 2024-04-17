@@ -132,18 +132,22 @@ Model* lightDummy;
 /**************************************************/
 //Carga de modelos
 
-//Modelo AguilaBlanca - Animacion Procedural 01
-Model* AguilaBlanca;
+
+//Modelo Paneles Solares - Animacion Basica 01
+Model* soportePS;
+Model* SolarPanel;
 //Modelo MotoDelivery - Animacion Basica 02
 Model* RappiDelivery;
-//Modelo - Animacion Hombre Paseando Perro Basica 03
+//Modelo AguilaBlanca - Animacion Procedural compleja recorrido 01
+Model* AguilaBlanca;
+//Modelo - Animacion Hombre Paseando Perro compleja 02
 AnimatedModel* modelMan;
 AnimatedModel* modelDog;
-//Modelo Eclipse - Animacion KeyFrames 04
+//Modelo Eclipse - Animacion KeyFrames 03
 Model* modelEclipseChasis;
 Model* modelEclipseRearWheels;
 Model* modelEclipseFrontalWheels;
-//Modelo Pacman - Animacion KeyFrames 05
+//Modelo Pacman - Animacion KeyFrames 04
 AnimatedModel* modelPacManDescanso;
 AnimatedModel* modelPacManCorriendo;
 
@@ -172,6 +176,11 @@ int animationPacmanIndex = 0;
 glm::mat4 modelMatrixMan = glm::mat4(1.0f);
 glm::mat4 modelMatrixDog = glm::mat4(1.0f);
 
+//Modelo Paneles Solares
+float	  panel_offset = 0.0f;
+float	  panel_rotation = 0.0f;
+float	  panel_rotation1 = 0.0f;
+/////////////////////////////////////
 
 float tradius = 10.0f;
 float theta = 0.0f;
@@ -271,22 +280,28 @@ bool Start() {
 	//Piso Centro Comercial
 	piso = new Model("models/ModelsMall/pisoExterior/pisoExterior.obj");
 
-	//Ave - Aguila Animado Para Centro Comercial --> Animacion 01 - Procedural
+	/***********ANIMACIONES ********** CARGA DE MODELOS ***********/
+
+	//MotoRappi Para Centro Comercial --> Animacion 01 Basica
+	RappiDelivery = new Model("models/ModelsMall/RappiDelivery.fbx");
+	
+	//SolarPanels - Soporte y Paneles Para Centro Comercial --> Animacion 02 Basica
+	soportePS = new Model("models/ModelsMall/SolarPanels/soporteSolarPanel.obj");
+	SolarPanel = new Model("models/ModelsMall/SolarPanels/SolarPanel.obj");
+
+	//Ave - Aguila Animado Para Centro Comercial --> Animacion Compleja 01 - Procedural Compleja
 	AguilaBlanca = new Model("models/ModelsMall/AguilaBlancaFinal.obj");
 
-	//MotoRappi Para Centro Comercial --> Animacion 02 Basica
-	RappiDelivery = new Model("models/ModelsMall/RappiDelivery.fbx");
-
-	// Carro Eclipse
+	// Carro Eclipse --> Animacion Compleja 02 - KeyFrames - Recorrido Compleja
 	modelEclipseChasis = new Model("models/ModelsMall/Eclipse/2003eclipse_chasis.obj");
 	modelEclipseFrontalWheels = new Model("models/ModelsMall/Eclipse/2003eclipse_frontal_wheels.obj");
 	modelEclipseRearWheels = new Model("models/ModelsMall/Eclipse/2003eclipse_rear_wheels.obj");
 
-	//Model Pacman
+	//Model Pacman --> Animacion Compleja 03 - KeyFrames - Compleja
 	modelPacManDescanso = new AnimatedModel("models/ModelsMall/Pacman/Pac-Man_Descanso.fbx");
 	modelPacManCorriendo = new AnimatedModel("models/ModelsMall/Pacman/Pac-Man_Corriendo.fbx");
 
-	//Model ManDog
+	//Model ManDog --> Animacion Compleja 04 - KeyFrames - Compleja
 	modelMan = new AnimatedModel("models/ModelsMall/manWalkingFinal.fbx");
 	modelDog = new AnimatedModel("models/ModelsMall/DogGolden.fbx");
 
@@ -595,7 +610,7 @@ bool Update() {
 
 	glUseProgram(0); 
 
-	// Animacion Aguila --> Procedural 01 
+	// Animacion Aguila --> Procedural Compleja 01 
 
 	{
 		// Activamos el shader de Phong
@@ -629,7 +644,7 @@ bool Update() {
 	glUseProgram(0);
 
 
-	//Animacion DeliveryRappi
+	//Animacion DeliveryRappi --> Basica 01
 	
 	{
 		// Activamos el shader del plano
@@ -653,9 +668,113 @@ bool Update() {
 		RappiDelivery->Draw(*staticShader);
 	}
 	glUseProgram(0);
+
+	//Animacion Solar Panels  --> Basica 02
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		/**********************SOPORTE PANELES*************************/
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar izq - inf
+		glm::mat4 model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(-25.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 2 izq - sup
+		model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(-25.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 3 der - inf
+		model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(20.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 4 der - sup
+		model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(20.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		/**********************PANELES SOLARES*************************/
+
+		// Aplicamos transformaciones del modelo -- Panel Solar izq - inf
+		glm::mat4 modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(-22.175f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar  2 izq - sup
+		modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(-22.175f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar 3 der - inf
+		modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(22.875f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar 4 der - sup
+		modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(22.875f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
 	
 
-	//Animacion Eclipse
+	//Animacion Eclipse --> Compleja KeyFrames 02
 	
 	{
 
@@ -702,7 +821,7 @@ bool Update() {
 
 	glUseProgram(0);
 
-	// Pacman animado
+	// Pacman animado --> Compleja KeyFrames 03
 
 	{
 		modelPacManDescanso->UpdateAnimation(deltaTime);
@@ -744,7 +863,7 @@ bool Update() {
 
 	}
 
-	//Hombre Paseando
+	//Hombre Paseando --> Compleja KeyFrames part1 04
 	
 	{
 		modelMan->UpdateAnimation(deltaTime);
@@ -771,7 +890,7 @@ bool Update() {
 	glUseProgram(0);
 
 
-	//Model Dog Paseando
+	//Model Dog Paseando --> Compleja Keyframes part2 04
 
 	{
 		modelDog->UpdateAnimation(deltaTime);
@@ -856,10 +975,37 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
 		activeCamera = 1;
 
+	/******************Animaciones Con implementacion de teclas*********************/
 
-	//Animaciones Con implementacion de teclas
 
-	//Animacion Basica 1 RappiDelivery 
+	//Animaciones Con implementacion de teclas panel Solar Animacion basica 01
+
+	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+		if (panel_rotation1 < 35.0f)
+			panel_rotation1 += 1.0f; // Incrementa la rotación solo si es menor que 35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+		if (panel_rotation1 > -35.0f)
+			panel_rotation1 -= 1.0f; // Decrementa la rotación solo si es mayor que -35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+		if (panel_rotation < 35.0f)
+			panel_rotation += 1.0f; // Incrementa la rotación solo si es menor que 35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+		if (panel_rotation > -35.0f)
+			panel_rotation -= 1.0f; // Decrementa la rotación solo si es mayor que -35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+		if (panel_offset < 0.5f)
+			panel_offset += 0.01f; // Incrementa el desplazamiento solo si es menor que 0.1 unidades
+	}
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+		if (panel_offset > -0.5f)
+			panel_offset -= 0.01f; // Decrementa el desplazamiento solo si es mayor que -0.1 unidades
+	}
+
+	//Animacion Basica RappiDelivery 
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
 		// Si se presiona la tecla 'C', cambiar el estado de la animación
 		animacionActiva = !animacionActiva;

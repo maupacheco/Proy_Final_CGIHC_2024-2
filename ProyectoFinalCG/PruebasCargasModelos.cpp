@@ -76,6 +76,8 @@ float	giraMoto = 90.0f;
 Shader *staticShader;
 Shader *dynamicShader;
 Shader *proceduralShader;
+Shader *wavesShader;
+
 
 // Carga la información del modelo
 Model	        *house;
@@ -85,6 +87,8 @@ Model			*rock;
 Model			*picnic;
 Model			*soportePS;
 Model			*SolarPanel;
+Model			*grassMesh;
+
 
 //SALA NIKE
 //Model			*mesaManiquieNike;
@@ -125,6 +129,8 @@ const float giroEclipse = 0.5f;
 /**************************************************/
 
 float proceduralTime = 0.0f;
+float wavesTime = 0.0f;
+
 
 float	  panel_offset = 0.0f;
 float	  panel_rotation = 0.0f;
@@ -197,6 +203,7 @@ bool Start() {
 	dynamicShader = new Shader("shaders/09_vertex_skinning.vs", "shaders/09_fragment_skinning.fs");
 	staticShader = new Shader("shaders/10_vertex_simple.vs", "shaders/10_fragment_simple.fs");
 	proceduralShader = new Shader("shaders/12_ProceduralAnimation.vs", "shaders/12_ProceduralAnimation.fs");
+	wavesShader = new Shader("shaders/13_wavesAnimation.vs", "shaders/13_wavesAnimation.fs");
 
 	// Máximo número de huesos: 100 por defecto
 	dynamicShader->setBonesIDs(MAX_RIGGING_BONES);
@@ -210,6 +217,8 @@ bool Start() {
 	picnic = new Model("models/ModelsMall/picnicFinal.fbx");
 	soportePS = new Model("models/ModelsMall/SolarPanels/soporteSolarPanel.obj");
 	SolarPanel = new Model("models/ModelsMall/SolarPanels/SolarPanel.obj");
+	grassMesh = new Model("models/IllumModels/grassMesh.fbx");
+
 
 
 
@@ -344,6 +353,76 @@ bool Update() {
 		staticShader->setMat4("model", model1);
 
 		pasto1->Draw(*staticShader);
+	}
+
+	glUseProgram(0);
+
+	{
+		// Activamos el shader de Phong
+		wavesShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		wavesShader->setMat4("projection", projection);
+		wavesShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-18.727f, 0.184485f, 25.388f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.007f, 0.003f, 0.005f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+
+		grassMesh->Draw(*wavesShader);
+
+		// Aplicamos transformaciones del modelo
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-6.03965f, 0.184485f, 25.388f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.007f, 0.003f, 0.005f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+
+		grassMesh->Draw(*wavesShader);
+
+		// Aplicamos transformaciones del modelo
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(6.64432f, 0.184485f, 25.388f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.007f, 0.003f, 0.005f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+
+		grassMesh->Draw(*wavesShader);
+
+		// Aplicamos transformaciones del modelo
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(19.0824f, 0.184485f, 25.388f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.007f, 0.003f, 0.005f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+
+		grassMesh->Draw(*wavesShader);
+
+		wavesTime += 0.05;
+
 	}
 
 	glUseProgram(0);
@@ -529,8 +608,11 @@ bool Update() {
 		staticShader->setMat4("projection", projection);
 		staticShader->setMat4("view", view);
 
-		// Aplicamos transformaciones del modelo
+		/**********************SOPORTE PANELES*************************/
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar izq - inf
 		glm::mat4 model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(-25.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
 		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
 		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
@@ -538,9 +620,42 @@ bool Update() {
 
 		soportePS->Draw(*staticShader);
 
-		// Aplicamos transformaciones del modelo
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 2 izq - sup
+		model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(-25.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 3 der - inf
+		model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(20.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 4 der - sup
+		model1 = glm::mat4(1.0f);
+		model1 = glm::translate(model1, glm::vec3(20.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model1);
+
+		soportePS->Draw(*staticShader);
+		
+		/**********************PANELES SOLARES*************************/
+
+		// Aplicamos transformaciones del modelo -- Panel Solar izq - inf
 		glm::mat4 modelSP = glm::mat4(1.0f);
-		modelSP = glm::translate(modelSP, glm::vec3(2.825f, 7.0f + panel_offset, 15.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::translate(modelSP, glm::vec3(-22.175f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
 		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
 		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
@@ -548,6 +663,38 @@ bool Update() {
 
 		SolarPanel->Draw(*staticShader);
 
+		// Aplicamos transformaciones del modelo -- Panel Solar  2 izq - sup
+		modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(-22.175f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar 3 der - inf
+		modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(22.875f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar 4 der - sup
+		modelSP = glm::mat4(1.0f);
+		modelSP = glm::translate(modelSP, glm::vec3(22.875f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
+		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelSP);
+
+		SolarPanel->Draw(*staticShader);
 	}
 
 	glUseProgram(0);
@@ -580,20 +727,33 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
-	//Animaciones Con implementacion de teclas
+	//Animaciones Con implementacion de teclas panel Solar Animacion basica 01
 
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
-		panel_offset += 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-		panel_offset -= 0.01f;
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-		panel_rotation += 1.f;
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-		panel_rotation -= 1.f;
-	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
-		panel_rotation1 += 1.f;
-	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
-		panel_rotation1 -= 1.f;
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+		if (panel_rotation1 < 35.0f)
+			panel_rotation1 += 1.0f; // Incrementa la rotación solo si es menor que 35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+		if (panel_rotation1 > -35.0f)
+			panel_rotation1 -= 1.0f; // Decrementa la rotación solo si es mayor que -35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
+		if (panel_rotation < 35.0f)
+			panel_rotation += 1.0f; // Incrementa la rotación solo si es menor que 35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+		if (panel_rotation > -35.0f)
+			panel_rotation -= 1.0f; // Decrementa la rotación solo si es mayor que -35 grados
+	}
+	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+		if (panel_offset < 0.5f)
+			panel_offset += 0.01f; // Incrementa el desplazamiento solo si es menor que 0.1 unidades
+	}
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+		if (panel_offset > -0.5f)
+			panel_offset -= 0.01f; // Decrementa el desplazamiento solo si es mayor que -0.1 unidades
+	}
+
 
 
 	// Character movement
