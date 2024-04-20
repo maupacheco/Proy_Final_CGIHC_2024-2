@@ -125,7 +125,6 @@ Model* centroComercial;
 Model* piso;
 Model* door;
 Model* moon;
-Model* gridMesh;
 //Indice para las luces
 Model* lightDummy;
 
@@ -151,6 +150,11 @@ Model* modelEclipseFrontalWheels;
 AnimatedModel* modelPacManDescanso;
 AnimatedModel* modelPacManCorriendo;
 
+/*Animaciones Extras*/
+/*Waves Shader*/
+Model* grassMesh;
+
+
 //Modelos ---> Sala Nike 01
 Model			*mesaManiquieNike;
 Model			*cajaCobro;
@@ -160,7 +164,6 @@ Model			*ShoesFinal;
 
 /*Modelos Extras*/
 Model* picnic;
-Model* pasto1;
 Model* rock;
 
 /**************************************************/
@@ -304,6 +307,13 @@ bool Start() {
 	//Model ManDog --> Animacion Compleja 04 - KeyFrames - Compleja
 	modelMan = new AnimatedModel("models/ModelsMall/manWalkingFinal.fbx");
 	modelDog = new AnimatedModel("models/ModelsMall/DogGolden.fbx");
+
+
+	/*********ANIMACIONES EXTRAS************/
+	//Model grass(Pasto) --> Animacion Compleja 05 - wavesShaderMovement - Compleja
+
+	grassMesh = new Model("models/IllumModels/grassMeshComercial.fbx");
+
 
 	/**********Modelos Extras Al exterior*********/
 	picnic = new Model("models/ModelsMall/picnicFinal.fbx");
@@ -936,6 +946,79 @@ bool Update() {
 
 			lightDummy->Draw(*basicShader);
 		}
+
+	}
+
+	glUseProgram(0);
+
+	/******************************ANIMACION/ES EXTRA/S*******************************/
+
+	//Esta animacion realiza el movimiento del pasto de forma que parece que se mueve con el viento
+
+	{
+		// Activamos el shader de Phong
+		wavesShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		wavesShader->setMat4("projection", projection);
+		wavesShader->setMat4("view", view);
+
+
+		/*********** PASTO --> Animacion de Viento **********/
+
+		// Aplicamos transformaciones del modelo --> Grass Mesh 01 FRONT
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(18.4398f, 0.184485f, 25.4736f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.007f, 0.003f, 0.005f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+		grassMesh->Draw(*wavesShader);
+
+		// Aplicamos transformaciones del modelo --> Grass Mesh 02 BACK
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(18.2575f, 0.184485f, -50.2738f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.007f, 0.003f, 0.005f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+		grassMesh->Draw(*wavesShader);
+
+		// Aplicamos transformaciones del modelo --> Grass Mesh 03 LEFT
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-40.5544f, 0.184485f, 4.56062f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.0065f, 0.003196f, 0.0052f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+		grassMesh->Draw(*wavesShader);
+
+		// Aplicamos transformaciones del modelo --> Grass Mesh 04 RIGHT
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(40.825f, 0.184485f, 4.56062f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(-0.0065f, 0.003196f, 0.0052f));
+		wavesShader->setMat4("model", model);
+
+		wavesShader->setFloat("time", wavesTime);
+		wavesShader->setFloat("radius", 5.0f);
+		wavesShader->setFloat("height", 5.0f);
+		grassMesh->Draw(*wavesShader);
+
+		wavesTime += 0.05;
 
 	}
 
