@@ -98,6 +98,14 @@ Model			*picnic;
 //Model			*probadores;
 //Model			*ShoesFinal;
 
+//Sala Patagonia
+
+Model* cajaCobroPatagonia;
+Model* probadoresPatagonia;
+Model* sillonPatagonia;
+Model* maniquePatagonia;
+Model* mueblePatagonia;
+
 // Model *chair, *table;
 AnimatedModel* character;
 
@@ -234,6 +242,16 @@ bool Start() {
 	//probadores = new Model("models/ModelsMall/SalaNike/probadores.fbx");
 	//ShoesFinal = new Model("models/ModelsMall/SalaNike/ShoesStand/ShoesFinal.obj");
 
+
+	cajaCobroPatagonia = new Model("models/ModelsMall/SalaPatagonia/CajaCobroPatagonia.fbx");
+	maniquePatagonia = new Model("models/ModelsMall/SalaPatagonia/ManiquiePatagonia/ManiquiePatagonia.obj");
+	sillonPatagonia = new Model("models/ModelsMall/SalaPatagonia/sofaPatagonia/ManiquiePatagonia.obj");
+	probadoresPatagonia = new Model("models/ModelsMall/SalaPatagonia/ProbadoresPatagonia/ProbadoresPatagonia.obj");
+	mueblePatagonia = new Model("models/ModelsMall/SalaPatagonia/mueblePatagonia/mueblePatagonia.obj");
+
+	
+	//Sala Patagonia
+
 	//Ave - Aguila Animado Para Centro Comercial
 	//AguilaBlanca = new Model("models/ModelsMall/AguilaBlancaFinal.obj");
 
@@ -312,7 +330,7 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -0.025f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(-0.5f, -0.025f, 0.0f)); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
 		staticShader->setMat4("model", model);
@@ -535,6 +553,72 @@ bool Update() {
 		// Dibujamos el modelo
 		//character->Draw(*dynamicShader);
 	}
+
+
+	//SalaPatagonia
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Caja Cobro
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-9.0f, 2.80f, -5.36271f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		cajaCobroPatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Manique
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		maniquePatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo sofa
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.19f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		sillonPatagonia->Draw(*staticShader);
+		
+		// Aplicamos transformaciones del modelo ----> Modelo probadores
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		probadoresPatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo probadores
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		mueblePatagonia->Draw(*staticShader);
+
+	}
+
+	glUseProgram(0);
+
+
+
 
 	// Desactivamos el shader actual
 	glUseProgram(0);

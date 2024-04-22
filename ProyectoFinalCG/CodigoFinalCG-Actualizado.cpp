@@ -121,7 +121,13 @@ Shader* basicShader;
 
 
 // Carga la información del modelo
-Model* centroComercial;
+//Model* centroComercial;
+
+// Carga la información del modelo
+Model* EstructuraCentroComercial;
+Model* TechoCentroComercial;
+Model* PisosEscaleras;
+
 Model* piso;
 Model* door;
 Model* moon;
@@ -160,6 +166,15 @@ Model			*mesaManiquieNike;
 Model			*cajaCobro;
 Model			*probadores;
 Model			*ShoesFinal;
+
+//Sala ---> Sala Patagonia 02
+
+Model* cajaCobroPatagonia;
+Model* probadoresPatagonia;
+Model* sillonPatagonia;
+Model* maniquePatagonia;
+Model* mueblePatagonia;
+
 
 
 /*Modelos Extras*/
@@ -278,7 +293,10 @@ bool Start() {
 	/*********************Se cargan los modelos del centro comercial*************************/
 
 	//Estructura Centro Comercial
-	centroComercial = new Model("models/ModelsMall/CCBlackFinal.fbx");
+	//centroComercial = new Model("models/ModelsMall/CCBlackFinal.fbx");
+	EstructuraCentroComercial = new Model("models/ModelsMall/CentroComercial/EstructuraFinal.fbx");
+	TechoCentroComercial = new Model("models/ModelsMall/CentroComercial/TechoCentroComercial.obj");
+	PisosEscaleras = new Model("models/ModelsMall/CentroComercial/PisoEscaleras.obj");
 
 	//Piso Centro Comercial
 	piso = new Model("models/ModelsMall/pisoExterior/pisoExterior.obj");
@@ -287,7 +305,7 @@ bool Start() {
 
 	//MotoRappi Para Centro Comercial --> Animacion 01 Basica
 	RappiDelivery = new Model("models/ModelsMall/RappiDelivery.fbx");
-	
+
 	//SolarPanels - Soporte y Paneles Para Centro Comercial --> Animacion 02 Basica
 	soportePS = new Model("models/ModelsMall/SolarPanels/soporteSolarPanel.obj");
 	SolarPanel = new Model("models/ModelsMall/SolarPanels/SolarPanel.obj");
@@ -324,17 +342,23 @@ bool Start() {
 	cajaCobro = new Model("models/ModelsMall/SalaNike/cajaCobro.fbx");
 	probadores = new Model("models/ModelsMall/SalaNike/probadores.fbx");
 	ShoesFinal = new Model("models/ModelsMall/SalaNike/ShoesStand/ShoesFinal.obj");
-	
+
+	/********** Modelos SALA PATAGONIA 02 *********/
+	cajaCobroPatagonia = new Model("models/ModelsMall/SalaPatagonia/CajaCobroPatagonia.fbx");
+	maniquePatagonia = new Model("models/ModelsMall/SalaPatagonia/ManiquiePatagonia/ManiquiePatagonia.obj");
+	sillonPatagonia = new Model("models/ModelsMall/SalaPatagonia/sofaPatagonia/ManiquiePatagonia.obj");
+	probadoresPatagonia = new Model("models/ModelsMall/SalaPatagonia/ProbadoresPatagonia/ProbadoresPatagonia.obj");
+	mueblePatagonia = new Model("models/ModelsMall/SalaPatagonia/mueblePatagonia/mueblePatagonia.obj");
 
 	// Cubemap
 	vector<std::string> faces
 	{
-		"textures/cubemap/01/posx.png",
-		"textures/cubemap/01/negx.png",
-		"textures/cubemap/01/posy.png",
-		"textures/cubemap/01/negy.png",
-		"textures/cubemap/01/posz.png",
-		"textures/cubemap/01/negz.png"
+		"textures/cubemap/01/posx.jpg",
+		"textures/cubemap/01/negx.jpg",
+		"textures/cubemap/01/posy.jpg",
+		"textures/cubemap/01/negy.jpg",
+		"textures/cubemap/01/posz.jpg",
+		"textures/cubemap/01/negz.jpg"
 	};
 	mainCubeMap = new CubeMap();
 	mainCubeMap->loadCubemap(faces);
@@ -468,7 +492,25 @@ bool Update() {
 		model = glm::translate(model, glm::vec3(0.0f, 0.025f, 0.0f)); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		mLightsShader->setMat4("model", model);
+
+		EstructuraCentroComercial->Draw(*mLightsShader);
+
+
+		// Aplicamos transformaciones del modelo
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.025f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+
+		// Aplicamos transformaciones del modelo
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.025f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
 		// Configuramos propiedades de fuentes de luz
 		mLightsShader->setInt("numLights", (int)gLights.size());
@@ -488,8 +530,11 @@ bool Update() {
 		mLightsShader->setVec4("MaterialDiffuseColor", material01.diffuse);
 		mLightsShader->setVec4("MaterialSpecularColor", material01.specular);
 		mLightsShader->setFloat("transparency", material01.transparency);
+		
+		TechoCentroComercial->Draw(*mLightsShader);
+		PisosEscaleras->Draw(*mLightsShader);
 
-		centroComercial->Draw(*mLightsShader);
+
 
 		// model = glm::mat4(1.0f);
 
@@ -566,7 +611,7 @@ bool Update() {
 
 	glUseProgram(0);
 
-	//mesaSalaNikeManique
+	//SalaNikeManique
 	{
 		// Activamos el shader del plano
 		staticShader->use();
@@ -619,6 +664,68 @@ bool Update() {
 	}
 
 	glUseProgram(0); 
+
+	//SalaPatagonia
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Caja Cobro
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-9.0f, 2.80f, -5.36271f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		cajaCobroPatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Manique
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		maniquePatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo sofa
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.19f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		sillonPatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo probadores
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		probadoresPatagonia->Draw(*staticShader);
+
+		// Aplicamos transformaciones del modelo ----> Modelo probadores
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", model);
+
+		mueblePatagonia->Draw(*staticShader);
+
+	}
+
+	glUseProgram(0);
 
 	// Animacion Aguila --> Procedural Compleja 01 
 
