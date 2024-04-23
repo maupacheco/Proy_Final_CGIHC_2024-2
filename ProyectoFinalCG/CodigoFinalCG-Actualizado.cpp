@@ -51,8 +51,6 @@ const unsigned int SCR_HEIGHT = 768;
 Camera camera(glm::vec3(0.0f, 10.0f, 35.0f));
 Camera camera3rd(glm::vec3(0.0f, 0.0f, 0.0f));
 
-
-
 // Controladores para el movimiento del mouse
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -64,12 +62,16 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 
-
-glm::vec3 position(0.0f, 0.0f, 0.0f);
-glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
-float     trdpersonOffset = 1.0f;
-float     scaleV = 0.025f;
+//Variables para la 3ra Persona -- Model Spiderman
+glm::vec3 position(-20.0f, 0.0f, -20.0f);
+glm::vec3 forwardView(0.0f, 0.0f, 1.5f);
+float     trdpersonOffset = 3.5f;
+float     scaleV = 0.15f;
 float     rotateCharacter = 0.0f;
+float     rotateCharacterManDog = 0.0f;
+
+
+//Variables de puerta Centro Comercial
 float	  door_offset = 0.0f;
 float	  door_rotation = 0.0f;
 
@@ -98,8 +100,8 @@ bool avanceAutomatico = false;
 // Variables animacion maquina de estados eclipse
 float velocidadAnimacion = 0.5f; // Puedes ajustar este valor según sea necesario
 float tiempoTranscurrido = 0.0f; // Declaración de la variable global
-const float avance = 0.09f;
-const float giroEclipse = 0.5f;
+const float avance = 0.5f;
+const float giroEclipse = 1.0f;
 /**************************************************/
 
 
@@ -155,6 +157,9 @@ Model* modelEclipseFrontalWheels;
 //Modelo Pacman - Animacion KeyFrames 04
 AnimatedModel* modelPacManDescanso;
 AnimatedModel* modelPacManCorriendo;
+//Model Spiderman 3ra Persona
+AnimatedModel* Spiderman;
+
 
 /*Animaciones Extras*/
 /*Waves Shader*/
@@ -175,6 +180,9 @@ Model* sillonPatagonia;
 Model* maniquePatagonia;
 Model* mueblePatagonia;
 
+//Sala ---> Sala GamePlanet 03
+
+Model* SalaGamePlanet;
 
 
 /*Modelos Extras*/
@@ -326,6 +334,10 @@ bool Start() {
 	modelMan = new AnimatedModel("models/ModelsMall/manWalkingFinal.fbx");
 	modelDog = new AnimatedModel("models/ModelsMall/DogGolden.fbx");
 
+	//Model Spiderman --> Animacion Mixamo - 3ra Persona -- Caminando
+	Spiderman = new AnimatedModel("models/IllumModels/SpiderManFinal.fbx");
+
+
 
 	/*********ANIMACIONES EXTRAS************/
 	//Model grass(Pasto) --> Animacion Compleja 05 - wavesShaderMovement - Compleja
@@ -349,6 +361,9 @@ bool Start() {
 	sillonPatagonia = new Model("models/ModelsMall/SalaPatagonia/sofaPatagonia/ManiquiePatagonia.obj");
 	probadoresPatagonia = new Model("models/ModelsMall/SalaPatagonia/ProbadoresPatagonia/ProbadoresPatagonia.obj");
 	mueblePatagonia = new Model("models/ModelsMall/SalaPatagonia/mueblePatagonia/mueblePatagonia.obj");
+
+	/********** Modelos SALA GAMEPLANET 03 *********/
+	SalaGamePlanet = new Model("models/ModelsMall/SalaGaming/SalaGamePlanet/SalaGamePlanet.obj");
 
 	// Cubemap
 	vector<std::string> faces
@@ -611,7 +626,7 @@ bool Update() {
 
 	glUseProgram(0);
 
-	//SalaNikeManique
+	//SalaNike
 	{
 		// Activamos el shader del plano
 		staticShader->use();
@@ -722,6 +737,33 @@ bool Update() {
 		staticShader->setMat4("model", model);
 
 		mueblePatagonia->Draw(*staticShader);
+
+	}
+
+	glUseProgram(0);
+
+
+	//Sala Game Planet
+	{
+		// Activamos el shader del plano
+		staticShader->use();
+
+		// Activamos para objetos transparentes
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		staticShader->setMat4("projection", projection);
+		staticShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo ----> Modelo Mesa Manique
+		glm::mat4 modelMesa = glm::mat4(1.0f);
+		modelMesa = glm::translate(modelMesa, glm::vec3(-0.6f, -0.40f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelMesa = glm::scale(modelMesa, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		staticShader->setMat4("model", modelMesa);
+
+		SalaGamePlanet->Draw(*staticShader);
 
 	}
 
@@ -994,7 +1036,7 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo
 		glm::mat4 modelManBody = glm::mat4(modelMatrixMan);
-		modelManBody = glm::rotate(modelManBody, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		modelManBody = glm::rotate(modelManBody, glm::radians(rotateCharacterManDog), glm::vec3(0.0, 1.0f, 0.0f));
 		modelManBody = glm::scale(modelManBody, glm::vec3(0.01f, 0.01f, 0.01f));	// it's a bit too big for our scene, so scale it down
 		dynamicShader->setMat4("model", modelManBody);
 
@@ -1022,7 +1064,7 @@ bool Update() {
 		// Aplicamos transformaciones del modelo
 		glm::mat4 modelDogBody = glm::mat4(modelMatrixDog);
 		modelDogBody = glm::translate(modelDogBody, glm::vec3(0.0f, 0.0f, 3.0f));
-		modelDogBody = glm::rotate(modelDogBody, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		modelDogBody = glm::rotate(modelDogBody, glm::radians(rotateCharacterManDog), glm::vec3(0.0, 1.0f, 0.0f));
 		modelDogBody = glm::scale(modelDogBody, glm::vec3(0.003f, 0.003f, 0.003f));	// it's a bit too big for our scene, so scale it down
 
 		dynamicShader->setMat4("model", modelDogBody);
@@ -1032,6 +1074,34 @@ bool Update() {
 		// Dibujamos el modelo
 		modelDog->Draw(*dynamicShader);
 	}
+
+	glUseProgram(0);
+
+
+	{
+		Spiderman->UpdateAnimation(deltaTime);
+
+		// Activación del shader del personaje
+		dynamicShader->use();
+
+		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
+		dynamicShader->setMat4("projection", projection);
+		dynamicShader->setMat4("view", view);
+
+		// Aplicamos transformaciones del modelo
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, position); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.0014f, 0.0014f, 0.0014f));	// it's a bit too big for our scene, so scale it down
+
+		dynamicShader->setMat4("model", model);
+
+		dynamicShader->setMat4("gBones", MAX_RIGGING_BONES, Spiderman->gBones);
+
+		// Dibujamos el modelo
+		Spiderman->Draw(*dynamicShader);
+	}
+
 
 	glUseProgram(0);
 
@@ -1160,6 +1230,114 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
+	// Spiderman Recorrido --> animacion 3ra Persona
+	bool controlPressed = glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS;
+
+	if (controlPressed) {
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+			position = position + scaleV * forwardView;
+			camera3rd.Front = forwardView;
+			camera3rd.ProcessKeyboard(FORWARD, deltaTime);
+			camera3rd.Position = position;
+			camera3rd.Position.y += 1.7f;
+			camera3rd.Position -= trdpersonOffset * forwardView;
+		}
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+			position = position - scaleV * forwardView;
+			camera3rd.Front = forwardView;
+			camera3rd.ProcessKeyboard(BACKWARD, deltaTime);
+			camera3rd.Position = position;
+			camera3rd.Position.y += 1.7f;
+			camera3rd.Position -= trdpersonOffset * forwardView;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+			rotateCharacter += 1.5f;
+
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			forwardView = glm::vec3(viewVector);
+			forwardView = glm::normalize(forwardView);
+
+			camera3rd.Front = forwardView;
+			camera3rd.Position = position;
+			camera3rd.Position.y += 1.7f;
+			camera3rd.Position -= trdpersonOffset * forwardView;
+		}
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			rotateCharacter -= 1.5f;
+
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::rotate(model, glm::radians(rotateCharacter), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::vec4 viewVector = model * glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			forwardView = glm::vec3(viewVector);
+			forwardView = glm::normalize(forwardView);
+
+			camera3rd.Front = forwardView;
+			camera3rd.Position = position;
+			camera3rd.Position.y += 1.7f;
+			camera3rd.Position -= trdpersonOffset * forwardView;
+		}
+	}
+	else {
+
+		//ASIGNACION DE TECLAS PACMAN
+
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE
+			&& glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE)
+			animationPacmanIndex = 0;
+		else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+
+			modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, 0.05f, glm::vec3(0, 1, 0));
+			modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, 0.05f, glm::vec3(0, 1, 0));
+			animationPacmanIndex = 1;
+
+		}
+		else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+
+
+			modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, -0.05f, glm::vec3(0, 1, 0));
+			modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, -0.05f, glm::vec3(0, 1, 0));
+			animationPacmanIndex = 1;
+
+		}
+		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+
+			modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, 0.05));
+			modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, 0.05));
+			animationPacmanIndex = 1;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+
+
+			modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, -0.05));
+			modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, -0.05));
+			animationPacmanIndex = 1;
+		}
+
+
+		//PACAMAN controls run
+		if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+			modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, 0.05f, glm::vec3(0, 1, 0));
+			modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, 0.05f, glm::vec3(0, 1, 0));
+			animationPacmanIndex = 1;
+		}
+		else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+			modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, -0.05f, glm::vec3(0, 1, 0));
+			modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, -0.05f, glm::vec3(0, 1, 0));
+			animationPacmanIndex = 1;
+		}
+		if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+			modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, 0.05));
+			modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, 0.05));
+			animationPacmanIndex = 1;
+		}
+		else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+			modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, -0.05));
+			modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, -0.05));
+			animationPacmanIndex = 1;
+		}
+	}
 	if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
 		activeCamera = 0;
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS)
@@ -1282,64 +1460,6 @@ void processInput(GLFWwindow* window)
 		break;
 	default:
 		break;
-	}
-
-	
-	//ASIGNACION DE TECLAS PACMAN
-
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE
-		&& glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE)
-		animationPacmanIndex = 0;
-	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-
-		modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, 0.02f, glm::vec3(0, 1, 0));
-		modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, 0.02f, glm::vec3(0, 1, 0));
-		animationPacmanIndex = 1;
-
-	}
-	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-
-
-		modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, -0.02f, glm::vec3(0, 1, 0));
-		modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, -0.02f, glm::vec3(0, 1, 0));
-		animationPacmanIndex = 1;
-
-	}
-	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-
-		modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, 0.02));
-		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, 0.02));
-		animationPacmanIndex = 1;
-	}
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-
-
-		modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, -0.02));
-		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, -0.02));
-		animationPacmanIndex = 1;
-	}
-	
-
-	//PACAMAN controls run
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, 0.02f, glm::vec3(0, 1, 0));
-		modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, 0.02f, glm::vec3(0, 1, 0));
-		animationPacmanIndex = 1;
-	}
-	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		modelMatrixPacmanCorriendo = glm::rotate(modelMatrixPacmanCorriendo, -0.02f, glm::vec3(0, 1, 0));
-		modelMatrixPacmanDescanso = glm::rotate(modelMatrixPacmanDescanso, -0.02f, glm::vec3(0, 1, 0));
-		animationPacmanIndex = 1;
-	}
-	if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, 0.02));
-		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, 0.02));
-		animationPacmanIndex = 1;
-	}
-	else if (modelSelected == 0 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		modelMatrixPacmanCorriendo = glm::translate(modelMatrixPacmanCorriendo, glm::vec3(0.0, 0.0, -0.02));
-		modelMatrixPacmanDescanso = glm::translate(modelMatrixPacmanDescanso, glm::vec3(0.0, 0.0, -0.02));
-		animationPacmanIndex = 1;
 	}
 
 
