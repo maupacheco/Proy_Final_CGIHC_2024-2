@@ -1,7 +1,8 @@
 /*
 Proyecto Final CGIHC 2024-2
 Alumno: Pacheco Salgado Mauricio
-Codigo implementado del profesor: Sergio Teodoro Vite
+
+PROFESOR : ARTURO PEREZ
 */
 #include <iostream>
 #include <stdlib.h>
@@ -48,7 +49,7 @@ const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
 // Definición de cámara (posición en XYZ)
-Camera camera(glm::vec3(0.0f, 10.0f, 35.0f));
+Camera camera(glm::vec3(0.0f, 7.0f, 35.0f));
 Camera camera3rd(glm::vec3(0.0f, 0.0f, 0.0f));
 
 // Controladores para el movimiento del mouse
@@ -63,9 +64,9 @@ float lastFrame = 0.0f;
 float elapsedTime = 0.0f;
 
 //Variables para la 3ra Persona -- Model Spiderman
-glm::vec3 position(-20.0f, 0.0f, -20.0f);
-glm::vec3 forwardView(0.0f, 0.0f, 1.5f);
-float     trdpersonOffset = 3.5f;
+glm::vec3 position(0.0f, 0.0f, 25.0f);
+glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
+float     trdpersonOffset = 4.5f;
 float     scaleV = 0.15f;
 float     rotateCharacter = 0.0f;
 float     rotateCharacterManDog = 0.0f;
@@ -79,7 +80,7 @@ float	  door_rotation = 0.0f;
 /*Variables para animacionB1*/
 //Animacion Basica 1 RappiDelivey
 bool animacionActiva = false;
-float	motoPosX = -1.0f;
+float	motoPosX = -5.0f;
 float	motoVelocidad = 0.2f;
 bool	movDerecha_moto = true;
 float	giraMoto = 90.0f;
@@ -100,8 +101,8 @@ bool avanceAutomatico = false;
 // Variables animacion maquina de estados eclipse
 float velocidadAnimacion = 0.5f; // Puedes ajustar este valor según sea necesario
 float tiempoTranscurrido = 0.0f; // Declaración de la variable global
-const float avance = 0.5f;
-const float giroEclipse = 1.0f;
+const float avance = 1.0f;
+const float giroEclipse = 3.0f;
 /**************************************************/
 
 
@@ -186,7 +187,6 @@ Model* SalaGamePlanet;
 
 
 /*Modelos Extras*/
-Model* picnic;
 Model* rock;
 
 /**************************************************/
@@ -257,7 +257,7 @@ bool Start() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Creación de la ventana con GLFW
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Proyecto Final CGIHC 2024-2 - Pacheco Salgado Mauricio", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Proyecto Final CGIHC 2024-2 - Pacheco Salgado Mauricio - Equipo 9 - Grupo01", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -346,7 +346,6 @@ bool Start() {
 
 
 	/**********Modelos Extras Al exterior*********/
-	picnic = new Model("models/ModelsMall/picnicFinal.fbx");
 	rock = new Model("models/ModelsMall/rock.fbx");
 
 	/********** Modelos SALA NIKE 01 *********/
@@ -386,31 +385,31 @@ bool Start() {
 	// Lights configuration
 
 	Light light01;
-	light01.Position = glm::vec3(5.0f, 2.0f, 5.0f);
+	light01.Position = glm::vec3(5.0f, 10.0f, 5.0f);
 	light01.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	light01.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light01.Power = glm::vec4(50.0f, 50.0f, 50.0f, 1.0f);
 	light01.alphaIndex = 11;
 	gLights.push_back(light01);
 
 
-	/*Light light02;
-	light02.Position = glm::vec3(-5.0f, 2.0f, 5.0f);
+	Light light02;
+	light02.Position = glm::vec3(-5.0f, 10.0f, 5.0f);
 	light02.Color = glm::vec4(0.0f, 0.2f, 0.0f, 1.0f);
-	light02.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light02.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f);
 	gLights.push_back(light02);
 
 
 	Light light03;
-	light03.Position = glm::vec3(5.0f, 2.0f, -5.0f);
+	light03.Position = glm::vec3(5.0f, 10.0f, -5.0f);
 	light03.Color = glm::vec4(0.0f, 0.0f, 0.2f, 1.0f);
-	light03.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light03.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f);
 	gLights.push_back(light03);
 
 	Light light04;
-	light04.Position = glm::vec3(-5.0f, 2.0f, -5.0f);
-	light04.Color = glm::vec4(0.2f, 0.2f, 0.0f, 1.0f);
-	light04.Power = glm::vec4(10.0f, 10.0f, 10.0f, 1.0f);
-	gLights.push_back(light04);*/
+	light04.Position = glm::vec3(-5.0f, 10.0f, -5.0f);
+	light04.Color = glm::vec4(0.2f, 0.0f, 0.0f, 1.0f);
+	light04.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f);
+	gLights.push_back(light04);
 
 	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
 
@@ -421,7 +420,7 @@ bool Start() {
 	material01.specular = glm::vec4(0.296648f, 0.296648f, 0.296648f, 1.0f);
 	material01.transparency = 1.0f;
 
-	SoundEngine->play2D("sound/biodynamic.mp3", true);
+	SoundEngine->play2D("sound/morning-sunshine-bossa-nova.mp3", true);
 
 
 	return true;
@@ -606,14 +605,6 @@ bool Update() {
 		staticShader->setMat4("projection", projection);
 		staticShader->setMat4("view", view);
 
-		// Aplicamos transformaciones del modelo -----> Picnic
-		glm::mat4 modelPicnic = glm::mat4(1.0f);
-		modelPicnic = glm::translate(modelPicnic, glm::vec3(-15.0f, 0.5f, 25.0f)); // translate it down so it's at the center of the scene
-		modelPicnic = glm::scale(modelPicnic, glm::vec3(1.75f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelPicnic);
-
-		picnic->Draw(*staticShader);
-
 		// Aplicamos transformaciones del modelo -----> Rock1
 		glm::mat4 modelRock = glm::mat4(1.0f);
 		modelRock = glm::translate(modelRock, glm::vec3(-40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
@@ -704,7 +695,7 @@ bool Update() {
 
 		// Aplicamos transformaciones del modelo ----> Modelo Manique
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-0.5f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
 		staticShader->setMat4("model", model);
@@ -958,7 +949,7 @@ bool Update() {
 		modelEclipseChasis->Draw(*staticShader);
 
 
-		glm::mat4 modelMatrixFrontalWheels = glm::mat4(modelMatrixEclipseChasis); // (891)(892)(893)(894)
+		glm::mat4 modelMatrixFrontalWheels = glm::mat4(modelMatrixEclipseChasis); 
 
 		modelMatrixFrontalWheels = glm::translate(modelMatrixFrontalWheels, glm::vec3(0.0, 1.05813, 4.11483));
 		modelMatrixFrontalWheels = glm::rotate(modelMatrixFrontalWheels, rotWheelsY, glm::vec3(0, 1, 0));
@@ -1431,8 +1422,8 @@ void processInput(GLFWwindow* window)
 	case 1:
 		modelMatrixEclipse = glm::translate(modelMatrixEclipse, glm::vec3(0.0f, 0.0f, avance * velocidadAnimacion));
 		advanceCount += avance;
-		rotWheelsX += 0.05f;
-		rotWheelsY -= 0.02f;
+		rotWheelsX += 0.1f;
+		rotWheelsY -= 0.1f;
 		if (rotWheelsY < 0)
 			rotWheelsY = 0;
 		if (advanceCount > maxAdvance) {
@@ -1447,8 +1438,8 @@ void processInput(GLFWwindow* window)
 		modelMatrixEclipse = glm::translate(modelMatrixEclipse, glm::vec3(0.0, 0.0, 0.025f * velocidadAnimacion));
 		modelMatrixEclipse = glm::rotate(modelMatrixEclipse, glm::radians(giroEclipse), glm::vec3(0, 1, 0));
 		rotCount += giroEclipse;
-		rotWheelsX += 0.05f;
-		rotWheelsY += 0.02f;
+		rotWheelsX += 0.1f;
+		rotWheelsY += 0.1f;
 		if (rotWheelsY > 0.25f)
 			rotWheelsY = 0.25f;
 		if (rotCount >= 90.0f) {
@@ -1481,14 +1472,14 @@ void processInput(GLFWwindow* window)
 	}
 	else if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
 
-		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, 0.02));
-		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, 0.02));
+		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, 0.2));
+		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, 0.2));
 
 	}
 	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
 		
-		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, -0.02));
-		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, -0.02));
+		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, -0.2));
+		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, -0.2));
 	}
 
 	//Luz

@@ -27,4 +27,6 @@ https://www.humus.name/Textures/CNTower2.zip
 //Spiderman
 https://sketchfab.com/3d-models/spider-man-c8255e733c9a4c47a08f7a3ad9ca538e
 
+//Sala GamePlanet
+https://sketchfab.com/3d-models/gametech-store-c235fdaabedd4699b955f15cee3da2b6
 
