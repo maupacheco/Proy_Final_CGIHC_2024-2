@@ -65,10 +65,12 @@ float elapsedTime = 0.0f;
 
 //Variables para la 3ra Persona -- Model Spiderman
 glm::vec3 position(0.0f, 0.0f, 25.0f);
-glm::vec3 forwardView(0.0f, 0.0f, 1.0f);
+glm::vec3 forwardView(0.0f, 0.0f, -1.0f);
 float     trdpersonOffset = 4.5f;
 float     scaleV = 0.15f;
-float     rotateCharacter = 0.0f;
+float     rotateCharacter = 180.0f;
+
+//Hombre perro
 float     rotateCharacterManDog = 0.0f;
 
 
@@ -184,6 +186,10 @@ Model* mueblePatagonia;
 //Sala ---> Sala GamePlanet 03
 
 Model* SalaGamePlanet;
+
+//Sala ---> Sala EcoShop 04
+
+Model* EstanteAsia;
 
 
 /*Modelos Extras*/
@@ -364,6 +370,9 @@ bool Start() {
 	/********** Modelos SALA GAMEPLANET 03 *********/
 	SalaGamePlanet = new Model("models/ModelsMall/SalaGaming/SalaGamePlanet/SalaGamePlanet.obj");
 
+	/********** Modelos SALA GAMEPLANET 03 *********/
+	EstanteAsia = new Model("models/EstantePlantas/PlantShelf.obj");
+
 	// Cubemap
 	vector<std::string> faces
 	{
@@ -385,28 +394,28 @@ bool Start() {
 	// Lights configuration
 
 	Light light01;
-	light01.Position = glm::vec3(5.0f, 10.0f, 5.0f);
+	light01.Position = glm::vec3(7.0f, 10.0f, 15.0f);
 	light01.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	light01.Power = glm::vec4(50.0f, 50.0f, 50.0f, 1.0f);
+	light01.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
 	light01.alphaIndex = 11;
 	gLights.push_back(light01);
 
 
 	Light light02;
-	light02.Position = glm::vec3(-5.0f, 10.0f, 5.0f);
+	light02.Position = glm::vec3(-7.0f, 10.0f, 15.0f);
 	light02.Color = glm::vec4(0.0f, 0.2f, 0.0f, 1.0f);
-	light02.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f);
+	light02.Power = glm::vec4(20.0f, 20.0f, 20.0f, 1.0f);
 	gLights.push_back(light02);
 
 
 	Light light03;
-	light03.Position = glm::vec3(5.0f, 10.0f, -5.0f);
+	light03.Position = glm::vec3(5.0f, 10.0f, -15.0f);
 	light03.Color = glm::vec4(0.0f, 0.0f, 0.2f, 1.0f);
 	light03.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f);
 	gLights.push_back(light03);
 
 	Light light04;
-	light04.Position = glm::vec3(-5.0f, 10.0f, -5.0f);
+	light04.Position = glm::vec3(-5.0f, 10.0f, -15.0f);
 	light04.Color = glm::vec4(0.2f, 0.0f, 0.0f, 1.0f);
 	light04.Power = glm::vec4(30.0f, 30.0f, 30.0f, 1.0f);
 	gLights.push_back(light04);
@@ -548,217 +557,267 @@ bool Update() {
 		TechoCentroComercial->Draw(*mLightsShader);
 		PisosEscaleras->Draw(*mLightsShader);
 
-
-
-		// model = glm::mat4(1.0f);
-
-		// Actividad 5.1
-		// Efecto de puerta corrediza
-		// model = glm::translate(model, glm::vec3(0.418f + door_offset, 0.0f, 6.75f));
-
-		// Efecto de puerta con bisagra
-		// model = glm::rotate(model, glm::radians(door_rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		// model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		// mLightsShader->setMat4("model", model);
-		// door->Draw(*mLightsShader);
-	}
-
-	glUseProgram(0);
-
-	//Piso Exterior Principal Escalado y modelado
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo
-		glm::mat4 model = glm::mat4(1.0f);
+		//Piso Exterior Principal Escalado y modelado
+		// Aplicamos transformaciones del modelo --> Piso Exterior
+		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.525f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		mLightsShader->setMat4("model", model);
 
-		piso->Draw(*staticShader);
-	}
+		piso->Draw(*mLightsShader);
 
-	glUseProgram(0);
-
-	/**********Modelos Extras Estaticos Dibujados*****************/
-	
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
+		/**********Modelos Extras Estaticos Dibujados*****************/
 
 		// Aplicamos transformaciones del modelo -----> Rock1
-		glm::mat4 modelRock = glm::mat4(1.0f);
-		modelRock = glm::translate(modelRock, glm::vec3(-40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		modelRock = glm::rotate(modelRock, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelRock = glm::scale(modelRock, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelRock);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		rock->Draw(*staticShader);
-	}
+		rock->Draw(*mLightsShader);
 
-	glUseProgram(0);
+		// Aplicamos transformaciones del modelo -----> Rock2
 
-	//SalaNike
-	{
-		// Activamos el shader del plano
-		staticShader->use();
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		rock->Draw(*mLightsShader);
 
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
+		//////////////////////////////////////////////////////////////////
+
+		//SalaNike
 
 		// Aplicamos transformaciones del modelo ----> Modelo Mesa Manique
-		glm::mat4 modelMesa = glm::mat4(1.0f);
-		modelMesa = glm::translate(modelMesa, glm::vec3(-8.11834f, 6.95, -7.5f)); // translate it down so it's at the center of the scene
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-8.11834f, 6.95, -7.5f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelMesa = glm::scale(modelMesa, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelMesa);
+		model = glm::scale(model, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		mesaManiquieNike->Draw(*staticShader);
+		mesaManiquieNike->Draw(*mLightsShader);
 
 		// Aplicamos transformaciones del modelo ----> Modelo Caja Registradora
-		glm::mat4 modelCaja = glm::mat4(1.0f);
-		modelCaja = glm::translate(modelCaja, glm::vec3(-8.11834f, 6.95, -3.5f)); // translate it down so it's at the center of the scene
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-8.11834f, 6.95, -3.5f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelCaja = glm::scale(modelCaja, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelCaja);
+		model = glm::scale(model, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		cajaCobro->Draw(*staticShader);
+		cajaCobro->Draw(*mLightsShader);
 
 		// Aplicamos transformaciones del modelo ----> Modelo Probadores
-		glm::mat4 modelProbadores = glm::mat4(1.0f);
-		modelProbadores = glm::translate(modelProbadores, glm::vec3(-7.7f, 7.0, -4.0f)); // translate it down so it's at the center of the scene
-		modelProbadores = glm::rotate(modelProbadores, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelProbadores = glm::scale(modelProbadores, glm::vec3(0.008f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelProbadores);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-7.7f, 7.0, -4.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.008f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		probadores->Draw(*staticShader);
+		probadores->Draw(*mLightsShader);
 
 		// Aplicamos transformaciones del modelo ----> Modelo Tenis
-		glm::mat4 modelShoes = glm::mat4(1.0f);
-		modelShoes = glm::translate(modelShoes, glm::vec3(-7.7f, 7.0, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-7.7f, 7.0, 0.0f)); // translate it down so it's at the center of the scene
 		//modelShoes = glm::rotate(modelShoes, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelShoes = glm::scale(modelShoes, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelShoes);
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		ShoesFinal->Draw(*staticShader);
+		ShoesFinal->Draw(*mLightsShader);
 
+		////////////////////////////////////////////////////////////////7
 
-	}
-
-	glUseProgram(0); 
-
-	//SalaPatagonia
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
+		//SalaPatagonia
 
 		// Aplicamos transformaciones del modelo ----> Modelo Caja Cobro
-		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(-9.0f, 2.80f, -5.36271f)); // translate it down so it's at the center of the scene
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.010f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		mLightsShader->setMat4("model", model);
 
-		cajaCobroPatagonia->Draw(*staticShader);
+		cajaCobroPatagonia->Draw(*mLightsShader);
 
 		// Aplicamos transformaciones del modelo ----> Modelo Manique
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		mLightsShader->setMat4("model", model);
 
-		maniquePatagonia->Draw(*staticShader);
+		maniquePatagonia->Draw(*mLightsShader);
 
 		// Aplicamos transformaciones del modelo ----> Modelo sofa
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(-0.5f, -0.19f, 0.0f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		mLightsShader->setMat4("model", model);
 
-		sillonPatagonia->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo ----> Modelo probadores
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
-		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
-
-		probadoresPatagonia->Draw(*staticShader);
+		sillonPatagonia->Draw(*mLightsShader);
 
 		// Aplicamos transformaciones del modelo ----> Modelo probadores
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model);
+		mLightsShader->setMat4("model", model);
 
-		mueblePatagonia->Draw(*staticShader);
+		probadoresPatagonia->Draw(*mLightsShader);
 
-	}
+		// Aplicamos transformaciones del modelo ----> Modelo probadores
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.5f, -0.20f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-	glUseProgram(0);
+		mueblePatagonia->Draw(*mLightsShader);
 
+		////////////////////////////////////////////////////////////////7
 
-	//Sala Game Planet
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
+		//Sala Game Planet
 
 		// Aplicamos transformaciones del modelo ----> Modelo Mesa Manique
-		glm::mat4 modelMesa = glm::mat4(1.0f);
-		modelMesa = glm::translate(modelMesa, glm::vec3(-0.6f, -0.40f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-0.6f, -0.40f, 0.0f)); // translate it down so it's at the center of the scene
 		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelMesa = glm::scale(modelMesa, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelMesa);
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
 
-		SalaGamePlanet->Draw(*staticShader);
+		SalaGamePlanet->Draw(*mLightsShader);
 
+
+		///////////////////////////////////////////////////////////////////
+
+		//SALA EcoShop
+
+				// Aplicamos transformaciones del modelo ----> Modelo Caja Cobro
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-9.0f, 2.80f, -5.36271f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		EstanteAsia->Draw(*mLightsShader);
+
+
+		///////////////////////////////////////////////////////////////////
+
+			//Animacion DeliveryRappi --> Basica 01
+
+
+		// Aplicamos transformaciones del modelo --> RappiDelivery
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(motoPosX, 0.0f, 12.0f));
+		model = glm::scale(model, glm::vec3(1.25));
+		model = glm::rotate(model, glm::radians(giraMoto), glm::vec3(0.0f, 1.0f, 0.0f));
+		mLightsShader->setMat4("model", model);
+
+		RappiDelivery->Draw(*mLightsShader);
+
+		///////////////////////////////////////////////////////////////////
+
+			//Animacion Solar Panels  --> Basica 02 --> Con iluminacion
+
+		/**********************SOPORTE PANELES*************************/
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar izq - inf
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-25.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		soportePS->Draw(*mLightsShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 2 izq - sup
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-25.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		soportePS->Draw(*mLightsShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 3 der - inf
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(20.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		soportePS->Draw(*mLightsShader);
+
+		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 4 der - sup
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(20.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		soportePS->Draw(*mLightsShader);
+
+		/**********************PANELES SOLARES*************************/
+
+		// Aplicamos transformaciones del modelo -- Panel Solar izq - inf
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-22.175f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		SolarPanel->Draw(*mLightsShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar  2 izq - sup
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-22.175f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		SolarPanel->Draw(*mLightsShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar 3 der - inf
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(22.875f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		SolarPanel->Draw(*mLightsShader);
+
+		// Aplicamos transformaciones del modelo -- Panel Solar 4 der - sup
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(22.875f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
+		model = glm::translate(model, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+
+		SolarPanel->Draw(*mLightsShader);
+
+
+		
 	}
 
 	glUseProgram(0);
+
+
 
 	// Animacion Aguila --> Procedural Compleja 01 
 
@@ -793,135 +852,6 @@ bool Update() {
 
 	glUseProgram(0);
 
-
-	//Animacion DeliveryRappi --> Basica 01
-	
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
-
-		// Aplicamos transformaciones del modelo --> RappiDelivery
-		glm::mat4 modelRappi = glm::mat4(1.0f);
-		modelRappi = glm::translate(modelRappi, glm::vec3(motoPosX, 0.0f, 12.0f));
-		modelRappi = glm::scale(modelRappi, glm::vec3(1.25));
-		modelRappi = glm::rotate(modelRappi, glm::radians(giraMoto), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader->setMat4("model", modelRappi);
-
-		RappiDelivery->Draw(*staticShader);
-	}
-	glUseProgram(0);
-
-	//Animacion Solar Panels  --> Basica 02
-	{
-		// Activamos el shader del plano
-		staticShader->use();
-
-		// Activamos para objetos transparentes
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// Aplicamos transformaciones de proyección y cámara (si las hubiera)
-		staticShader->setMat4("projection", projection);
-		staticShader->setMat4("view", view);
-
-		/**********************SOPORTE PANELES*************************/
-
-		// Aplicamos transformaciones del modelo -- Soporte Panel Solar izq - inf
-		glm::mat4 model1 = glm::mat4(1.0f);
-		model1 = glm::translate(model1, glm::vec3(-25.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
-		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model1);
-
-		soportePS->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 2 izq - sup
-		model1 = glm::mat4(1.0f);
-		model1 = glm::translate(model1, glm::vec3(-25.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
-		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model1);
-
-		soportePS->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 3 der - inf
-		model1 = glm::mat4(1.0f);
-		model1 = glm::translate(model1, glm::vec3(20.0f, 0.0f, -8.0f)); // Traslación en -30 unidades en x y 10 unidades en z
-		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model1);
-
-		soportePS->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo -- Soporte Panel Solar 4 der - sup
-		model1 = glm::mat4(1.0f);
-		model1 = glm::translate(model1, glm::vec3(20.0f, 0.0f, -50.0f)); // Traslación en -30 unidades en x y 10 unidades en z
-		model1 = glm::translate(model1, glm::vec3(0.0, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		model1 = glm::rotate(model1, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model1 = glm::scale(model1, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", model1);
-
-		soportePS->Draw(*staticShader);
-
-		/**********************PANELES SOLARES*************************/
-
-		// Aplicamos transformaciones del modelo -- Panel Solar izq - inf
-		glm::mat4 modelSP = glm::mat4(1.0f);
-		modelSP = glm::translate(modelSP, glm::vec3(-22.175f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
-		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelSP);
-
-		SolarPanel->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo -- Panel Solar  2 izq - sup
-		modelSP = glm::mat4(1.0f);
-		modelSP = glm::translate(modelSP, glm::vec3(-22.175f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
-		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelSP);
-
-		SolarPanel->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo -- Panel Solar 3 der - inf
-		modelSP = glm::mat4(1.0f);
-		modelSP = glm::translate(modelSP, glm::vec3(22.875f, 7.0f + panel_offset, -23.5f)); // Traslación en -30 unidades en x
-		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelSP);
-
-		SolarPanel->Draw(*staticShader);
-
-		// Aplicamos transformaciones del modelo -- Panel Solar 4 der - sup
-		modelSP = glm::mat4(1.0f);
-		modelSP = glm::translate(modelSP, glm::vec3(22.875f, 7.0f + panel_offset, -65.4f)); // Traslación en -30 unidades en x
-		modelSP = glm::translate(modelSP, glm::vec3(0.0, 0.0f, 30.0f)); // translate it down so it's at the center of the scene
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-		modelSP = glm::rotate(modelSP, glm::radians(panel_rotation1), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelSP = glm::scale(modelSP, glm::vec3(0.2f));	// it's a bit too big for our scene, so scale it down
-		staticShader->setMat4("model", modelSP);
-
-		SolarPanel->Draw(*staticShader);
-	}
-
-	glUseProgram(0);
 	
 
 	//Animacion Eclipse --> Compleja KeyFrames 02
@@ -1056,7 +986,7 @@ bool Update() {
 		glm::mat4 modelDogBody = glm::mat4(modelMatrixDog);
 		modelDogBody = glm::translate(modelDogBody, glm::vec3(0.0f, 0.0f, 3.0f));
 		modelDogBody = glm::rotate(modelDogBody, glm::radians(rotateCharacterManDog), glm::vec3(0.0, 1.0f, 0.0f));
-		modelDogBody = glm::scale(modelDogBody, glm::vec3(0.003f, 0.003f, 0.003f));	// it's a bit too big for our scene, so scale it down
+		modelDogBody = glm::scale(modelDogBody, glm::vec3(0.0018f, 0.0018f, 0.0018f));	// it's a bit too big for our scene, so scale it down
 
 		dynamicShader->setMat4("model", modelDogBody);
 
@@ -1458,28 +1388,28 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
 
-		modelMatrixMan = glm::rotate(modelMatrixMan, 0.02f, glm::vec3(0, 1, 0));
-		modelMatrixDog = glm::rotate(modelMatrixDog, 0.02f, glm::vec3(0, 1, 0));
+		modelMatrixMan = glm::rotate(modelMatrixMan, 0.1f, glm::vec3(0, 1, 0));
+		modelMatrixDog = glm::rotate(modelMatrixDog, 0.1f, glm::vec3(0, 1, 0));
 
 	}
 	else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
 
 
-		modelMatrixMan = glm::rotate(modelMatrixMan, -0.02f, glm::vec3(0, 1, 0));
-		modelMatrixDog = glm::rotate(modelMatrixDog, -0.02f, glm::vec3(0, 1, 0));
+		modelMatrixMan = glm::rotate(modelMatrixMan, -0.1f, glm::vec3(0, 1, 0));
+		modelMatrixDog = glm::rotate(modelMatrixDog, -0.1f, glm::vec3(0, 1, 0));
 
 
 	}
 	else if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
 
-		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, 0.2));
-		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, 0.2));
+		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, 0.1));
+		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, 0.1));
 
 	}
 	else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
 		
-		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, -0.2));
-		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, -0.2));
+		modelMatrixMan = glm::translate(modelMatrixMan, glm::vec3(0.0, 0.0, -0.1));
+		modelMatrixDog = glm::translate(modelMatrixDog, glm::vec3(0.0, 0.0, -0.1));
 	}
 
 	//Luz
