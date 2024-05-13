@@ -76,7 +76,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd 81PX1wwqq9L._AC_SX385_.jpg
+map_Kd marioGalaxy.jpg
 
 newmtl Material.077
 Ns 843.057858
@@ -131,7 +131,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd poster3.jpeg
+map_Kd 4106818-borderlands1template.jpg
 
 newmtl Material.082
 Ns 250.000000
@@ -142,7 +142,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd images.jpeg
+map_Kd 4106818-borderlands1template.jpg
 
 newmtl Material.083
 Ns 250.000000
@@ -331,8 +331,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd poster3.jpeg
-map_d poster3.jpeg
+map_Kd 81kN3ZgSSGL.__AC_SX300_SY300_QL70_ML2_.jpg
+map_d 81kN3ZgSSGL.__AC_SX300_SY300_QL70_ML2_.jpg
 
 newmtl poster4.002
 Ns 250.000000

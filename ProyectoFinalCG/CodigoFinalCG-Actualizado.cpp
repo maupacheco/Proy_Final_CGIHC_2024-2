@@ -132,6 +132,7 @@ Shader* basicShader;
 Model* EstructuraCentroComercial;
 Model* TechoCentroComercial;
 Model* PisosEscaleras;
+Model* LogosEstructura;
 
 Model* piso;
 Model* door;
@@ -189,7 +190,7 @@ Model* SalaGamePlanet;
 
 //Sala ---> Sala EcoShop 04
 
-Model* EstanteAsia;
+Model* SalaEcoShop;
 
 
 /*Modelos Extras*/
@@ -311,6 +312,8 @@ bool Start() {
 	EstructuraCentroComercial = new Model("models/ModelsMall/CentroComercial/EstructuraFinal.fbx");
 	TechoCentroComercial = new Model("models/ModelsMall/CentroComercial/TechoCentroComercial.obj");
 	PisosEscaleras = new Model("models/ModelsMall/CentroComercial/PisoEscaleras.obj");
+	LogosEstructura = new Model("models/ModelsMall/CentroComercial/LogosEstructura.obj");
+
 
 	//Piso Centro Comercial
 	piso = new Model("models/ModelsMall/pisoExterior/pisoExterior.obj");
@@ -355,7 +358,7 @@ bool Start() {
 	rock = new Model("models/ModelsMall/rock.fbx");
 
 	/********** Modelos SALA NIKE 01 *********/
-	mesaManiquieNike = new Model("models/ModelsMall/SalaNike/mesaManiquie1.fbx");
+	mesaManiquieNike = new Model("models/ModelsMall/SalaNike/mesaManiquieFinal.fbx");
 	cajaCobro = new Model("models/ModelsMall/SalaNike/cajaCobro.fbx");
 	probadores = new Model("models/ModelsMall/SalaNike/probadores.fbx");
 	ShoesFinal = new Model("models/ModelsMall/SalaNike/ShoesStand/ShoesFinal.obj");
@@ -370,10 +373,11 @@ bool Start() {
 	/********** Modelos SALA GAMEPLANET 03 *********/
 	SalaGamePlanet = new Model("models/ModelsMall/SalaGaming/SalaGamePlanet/SalaGamePlanet.obj");
 
-	/********** Modelos SALA GAMEPLANET 03 *********/
-	EstanteAsia = new Model("models/EstantePlantas/PlantShelf.obj");
+	/********** Modelos SALA ECO-SHOP 03 *********/
+	SalaEcoShop = new Model("models/ModelsMall/SalaEcologic/SalaEcoShop.obj");
 
 	// Cubemap
+	//Descarga directa ctrl +click izq: https://www.humus.name/Textures/CNTower2.zip
 	vector<std::string> faces
 	{
 		"textures/cubemap/01/posx.jpg",
@@ -396,7 +400,7 @@ bool Start() {
 	Light light01;
 	light01.Position = glm::vec3(7.0f, 10.0f, 15.0f);
 	light01.Color = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	light01.Power = glm::vec4(60.0f, 60.0f, 60.0f, 1.0f);
+	light01.Power = glm::vec4(50.0f, 50.0f, 50.0f, 1.0f);
 	light01.alphaIndex = 11;
 	gLights.push_back(light01);
 
@@ -423,6 +427,7 @@ bool Start() {
 	lightDummy = new Model("models/IllumModels/lightDummy.fbx");
 
 	// Configuración de propiedades materiales
+	// pearl material config -- Configuracion de el material con luces "Perla"
 	// Tabla: http://devernay.free.fr/cours/opengl/materials.html
 	material01.ambient = glm::vec4(0.25f, 0.20725f, 0.20725f, 1.0f);
 	material01.diffuse = glm::vec4(1.0f, 0.829f, 0.829f, 1.0f);
@@ -557,6 +562,15 @@ bool Update() {
 		TechoCentroComercial->Draw(*mLightsShader);
 		PisosEscaleras->Draw(*mLightsShader);
 
+		// Aplicamos transformaciones del modelo
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -0.025f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		mLightsShader->setMat4("model", model);
+		LogosEstructura->Draw(*mLightsShader);
+
+
 		//Piso Exterior Principal Escalado y modelado
 		// Aplicamos transformaciones del modelo --> Piso Exterior
 		model = glm::mat4(1.0f);
@@ -581,8 +595,8 @@ bool Update() {
 		// Aplicamos transformaciones del modelo -----> Rock2
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(40.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(42.0f, 0.0f, 25.0f)); // translate it down so it's at the center of the scene
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.5f));	// it's a bit too big for our scene, so scale it down
 		mLightsShader->setMat4("model", model);
 
@@ -697,12 +711,12 @@ bool Update() {
 
 				// Aplicamos transformaciones del modelo ----> Modelo Caja Cobro
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-9.0f, 2.80f, -5.36271f)); // translate it down so it's at the center of the scene
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-0.6f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(1.0f));	// it's a bit too big for our scene, so scale it down
 		mLightsShader->setMat4("model", model);
 
-		EstanteAsia->Draw(*mLightsShader);
+		SalaEcoShop->Draw(*mLightsShader);
 
 
 		///////////////////////////////////////////////////////////////////
